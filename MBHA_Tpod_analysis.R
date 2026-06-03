@@ -24,6 +24,19 @@ df_MBHA <- read.delim(
   skip = 56
 )
 
+DRG_MBHA <-as.numeric(nrow(df_MBHA))
+
+setwd("C:/Users/KumarA/Downloads/Gene_count_matrices/Gene_count_matrices")
+
+dose_MBHA <- read.delim(
+  "MBHA_bmdexpress_input_log2_transformed.txt",
+  sep = "\t",
+  header = TRUE)
+
+low_dose_MBHA <- min(dose_MBHA[1, ][dose_MBHA[1, ] != 0], na.rm = TRUE)
+high_dose_MBHA <-max(as.numeric(dose_MBHA[1, ]), na.rm = TRUE)
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic")
 
 #============================================================================
   # Function: LCRD.2
@@ -188,19 +201,81 @@ setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Defi
 
 
 df_MBHA_defCAT <- read.delim(
-  "MBHA_bmdexpress_input_log2_transformed_williams_0.05_NOMTC_foldfilter1.5_BMD_null_DEFINED-CatMapFile- Gallus_true_true_conf0.5_filtered.txt",
+  "MBHAbmdexpress_input_log2_transformed_williams_0.05_NOMTC_foldfilter1.5_BMD_null_DEFINED-CatMapFile- Gallus_true_true_conf0.txt",
   sep = "\t",
   header = TRUE,
-  skip = 70
+  skip = 79
 )
 
 MBHA_Cat_tpod <- min(df_MBHA_defCAT$BMD.Median, na.rm = TRUE)
 
-
+MBHA_Cat_tpod_path_name <- df_MBHA_defCAT$GO.Pathway.Gene.Set.Gene.Name[df_MBHA_defCAT$BMD.Median == MBHA_Cat_tpod]
 ###########################################################################
 #tpod summary
 
 MBHA_tpod_summary <- data.frame(LCRD2 = LCRD2_MBHA_Tpod, First_Mode = First_mode_MBHA_Tpod,twentieth_gene_lower_bound = twenty_gene_MBHA_table[1], twentieth_gene = twenty_gene_MBHA_Tpod,twentieth_gene_upper_bound = twenty_gene_MBHA_table[3], tenth_percentile_lower_bound = tenth_percentile_MBHA_table[1],tenth_percentile = tenth_percentile_MBHA_Tpod, tenth_percentile_upper_bound = tenth_percentile_MBHA_table[3], Lowest_BMC_median_Categorical = MBHA_Cat_tpod )
+
+##########################################################################
+#Table
+MBHA_table_full <- data.frame(
+  Chemical = c("MBHA", "", "", "",
+               "", "XXXXXXXXXX", "DRG"),
+  
+  Endpoints = c(
+    "LCRD",
+    "First mode",
+    paste0("Category (", MBHA_Cat_tpod_path_name, ")"),
+    "20th gene",
+    "10th percentile",
+    "XXXXXXXXXX",
+    DRG_MBHA
+  ),
+  
+  Lower = c(
+    " ",
+    " ",
+    " ",
+    twentieth_gene_lower_bound,
+    tenth_percentile_lower_bound,
+    "XXXXXXXXXX",
+    "TOP DOSE"
+  ),
+  
+  Median = c(
+    LCRD2_MBHA_Tpod,
+    First_mode_MBHA_Tpod,
+    MBHA_Cat_tpod,
+    twenty_gene_MBHA_Tpod,
+    tenth_percentile_MBHA_Tpod,
+    "XXXXXXXXXX",
+    high_dose_MBHA
+  ),
+  
+  Upper = c(
+    " ",
+    " ",
+    " ",
+    twentieth_gene_upper_bound,
+    tenth_percentile_upper_bound,
+    "XXXXXXXXXX",
+    "LOW DOSE"
+  ),
+  
+  Range = c(
+    " ",
+    " ",
+    " ",
+    twentieth_gene_upper_bound - twentieth_gene_lower_bound,
+    tenth_percentile_upper_bound - tenth_percentile_lower_bound,
+    "XXXXXXXXXX",
+    low_dose_MBHA
+  )
+)
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Plots")
+
+write.csv(MBHA_table_full, "MBHA_table_full.csv", row.names = FALSE)
+
 
 ############################################################################
 
@@ -285,7 +360,7 @@ tpod_df <- data.frame(
     LCRD2_MBHA_Tpod,
     First_mode_MBHA_Tpod,
     twenty_gene_MBHA_Tpod,
-    D_MBHA_Cat_tpod
+    MBHA_Cat_tpod
   )),
   
   label = c(

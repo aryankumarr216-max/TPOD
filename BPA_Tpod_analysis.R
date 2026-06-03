@@ -24,6 +24,19 @@ df_BPA <- read.delim(
   skip = 56
 )
 
+DRG_BPA <-as.numeric(nrow(df_BPA))
+
+setwd("C:/Users/KumarA/Downloads/Gene_count_matrices/Gene_count_matrices")
+
+dose_BPA <- read.delim(
+  "BPA_bmdexpress_input_log2_transformed.txt",
+  sep = "\t",
+  header = TRUE)
+
+low_dose_BPA <- min(dose_BPA[1, ][dose_BPA[1, ] != 0], na.rm = TRUE)
+high_dose_BPA <-max(as.numeric(dose_BPA[1, ]), na.rm = TRUE)
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic")
 
 #============================================================================
 # Function: LCRD.2
@@ -197,13 +210,86 @@ df_BPA_defCAT <- read.delim(
 )
 
 BPA_Cat_tpod <- min(df_BPA_defCAT$BMD.Median, na.rm = TRUE)
+BPA_Cat_tpod_path_name <- df_BPA_defCAT$GO.Pathway.Gene.Set.Gene.Name[df_BPA_defCAT$BMD.Median == BPA_Cat_tpod]
+
 ###########################################################################
 #tpod summary
 
 BPA_tpod_summary <- data.frame(LCRD2 = LCRD2_BPA_Tpod, First_Mode = First_mode_BPA_Tpod,twentieth_gene_lower_bound = twenty_gene_BPA_table[1], twentieth_gene = twenty_gene_BPA_Tpod,twentieth_gene_upper_bound = twenty_gene_BPA_table[3], tenth_percentile_lower_bound = tenth_percentile_BPA_table[1],tenth_percentile = tenth_percentile_BPA_Tpod, tenth_percentile_upper_bound = tenth_percentile_BPA_table[3], Lowest_BMC_median_Categorical = BPA_Cat_tpod )
 
+#####################################################################################
+#LC50 values:
+LC50_BPA_Lower <- (61.7-43.1)
+LC50_BPA_median <- (61.7)
+LC50_BPA_upper  <- (61.7+43.1)
+
+##########################################################################
+#Table
+BPA_table_full <- data.frame(
+  Chemical = c("BPA", "", "", "","",
+               "", "XXXXXXXXXX", "DRG"),
+  
+  Endpoints = c(
+    "LCRD",
+    "First mode",
+    paste0("Category (", BPA_Cat_tpod_path_name, ")"),
+    "20th gene",
+    "10th percentile",
+    "LC50",
+    "XXXXXXXXXX",
+    DRG_BPA
+  ),
+  
+  Lower = c(
+    " ",
+    " "," ",
+    twentieth_gene_lower_bound,
+    tenth_percentile_lower_bound,
+    LC50_BPA_Lower,
+    "XXXXXXXXXX",
+    "TOP DOSE"
+  ),
+  
+  Median = c(
+    LCRD2_BPA_Tpod,
+    First_mode_BPA_Tpod,
+    BPA_Cat_tpod,
+    twenty_gene_BPA_Tpod,
+    tenth_percentile_BPA_Tpod,
+    LC50_BPA_median,
+    "XXXXXXXXXX",
+    high_dose_BPA
+  ),
+  
+  Upper = c(
+    " ",
+    " "," ",
+    twentieth_gene_upper_bound,
+    tenth_percentile_upper_bound,
+    LC50_BPA_upper,
+    "XXXXXXXXXX",
+    "LOW DOSE"
+  ),
+  
+  Range = c(
+    " ",
+    " "," ",
+    twentieth_gene_upper_bound - twentieth_gene_lower_bound,
+    tenth_percentile_upper_bound - tenth_percentile_lower_bound,
+    LC50_BPA_upper - LC50_BPA_Lower,
+    "XXXXXXXXXX",
+    low_dose_BPA
+  )
+)
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Plots")
+
+write.csv(BPA_table_full, "BPA_table_full.csv", row.names = FALSE)
+
+
 ##########################################################################
 #plot
+library(ggplot2)
+library(dplyr)
 
 # Calculate the 10th percentile
 p10 <- quantile(df_BPA$Best.BMD, 0.10, na.rm = TRUE)

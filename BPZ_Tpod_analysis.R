@@ -24,6 +24,20 @@ df_BPZ <- read.delim(
   skip = 56
 )
 
+DRG_BPZ <-as.numeric(nrow(df_BPZ))
+
+setwd("C:/Users/KumarA/Downloads/Gene_count_matrices/Gene_count_matrices")
+
+dose_BPZ <- read.delim(
+  "BPZ_bmdexpress_input_log2_transformed.txt",
+  sep = "\t",
+  header = TRUE)
+
+low_dose_BPZ <- min(dose_BPZ[1, ][dose_BPZ[1, ] != 0], na.rm = TRUE)
+high_dose_BPZ <-max(as.numeric(dose_BPZ[1, ]), na.rm = TRUE)
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic")
+
 # ============================================================================
 # Function: LCRD.2
 # ============================================================================
@@ -192,11 +206,82 @@ df_BPZ_defCAT <- read.delim(
 )
 
 BPZ_Cat_tpod <- min(df_BPZ_defCAT$BMD.Median, na.rm = TRUE)
+
+BPZ_Cat_tpod_path_name <- df_BPZ_defCAT$GO.Pathway.Gene.Set.Gene.Name[df_BPZ_defCAT$BMD.Median == BPZ_Cat_tpod]
+
 ###########################################################################
 #tpod summary
 
 BPZ_tpod_summary <- data.frame(LCRD2 = LCRD2_BPZ_Tpod, First_Mode = First_mode_BPZ_Tpod,twentieth_gene_lower_bound = twenty_gene_BPZ_table[1], twentieth_gene = twenty_gene_BPZ_Tpod,twentieth_gene_upper_bound = twenty_gene_BPZ_table[3], tenth_percentile_lower_bound = tenth_percentile_BPZ_table[1],tenth_percentile = tenth_percentile_BPZ_Tpod, tenth_percentile_upper_bound = tenth_percentile_BPZ_table[3], Lowest_BMC_median_Categorical = BPZ_Cat_tpod )
+twentieth_gene_lower_bound = as.numeric(twenty_gene_BPZ_table[1])
+twentieth_gene_upper_bound = as.numeric(twenty_gene_BPZ_table[3])
+tenth_percentile_lower_bound = as.numeric(tenth_percentile_BPZ_table[1])
+tenth_percentile_upper_bound = as.numeric(tenth_percentile_BPZ_table[3])
+##########################################################################
+#LC50 values:
+LC50_BPZ_Lower <- (16.2-7.0)
+LC50_BPZ_median <- (16.2)
+LC50_BPZ_upper  <- (16.2+7.0)
+##########################################################################
+#Table
+BPZ_table_full <- data.frame(
+  Chemical = c("BPZ", "", "", "","",
+               "", "XXXXXXXXXX", "DRG"),
+  
+  Endpoints = c(
+    "LCRD",
+    "First mode",
+    paste0("Category (", BPZ_Cat_tpod_path_name, ")"),
+    "20th gene",
+    "10th percentile",
+    "LC50",
+    "XXXXXXXXXX",
+    DRG_BPZ
+  ),
+  
+  Lower = c(
+    " ",
+    " "," ",
+    twentieth_gene_lower_bound,
+    tenth_percentile_lower_bound,
+    LC50_BPZ_Lower,
+    "XXXXXXXXXX",
+    "TOP DOSE"
+  ),
+  
+  Median = c(
+    LCRD2_BPZ_Tpod,
+    First_mode_BPZ_Tpod,
+    BPZ_Cat_tpod,
+    twenty_gene_BPZ_Tpod,
+    tenth_percentile_BPZ_Tpod,
+    LC50_BPZ_median,
+    "XXXXXXXXXX",
+    high_dose_BPZ
+  ),
+  
+  Upper = c(
+    " ",
+    " "," ",
+    twentieth_gene_upper_bound,
+    tenth_percentile_upper_bound,
+    LC50_BPZ_upper,
+    "XXXXXXXXXX",
+    "LOW DOSE"
+  ),
+  
+  Range = c(
+    " ",
+    " "," ",
+    twentieth_gene_upper_bound - twentieth_gene_lower_bound,
+    tenth_percentile_upper_bound - tenth_percentile_lower_bound,
+    LC50_BPZ_upper - LC50_BPZ_Lower,
+    "XXXXXXXXXX",
+    low_dose_BPZ
+  )
+)
 
+write.csv(BPZ_table_full, "BPZ_table_full.csv", row.names = FALSE)
 ##########################################################################
 #plot
 

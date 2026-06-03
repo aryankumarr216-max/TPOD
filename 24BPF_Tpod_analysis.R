@@ -24,6 +24,20 @@ df_24BPF <- read.delim(
   skip = 56
 )
 
+DRG_24BPF <-as.numeric(nrow(df_24BPF))
+
+setwd("C:/Users/KumarA/Downloads/Gene_count_matrices/Gene_count_matrices")
+
+dose_D_24BPF <- read.delim(
+  "24BPF_bmdexpress_input_log2_transformed.txt",
+  sep = "\t",
+  header = TRUE)
+
+low_dose_24BPF <- min(dose_D_24BPF[1, ][dose_D_24BPF[1, ] != 0], na.rm = TRUE)
+high_dose_24BPF <-max(as.numeric(dose_D_24BPF[1, ]), na.rm = TRUE)
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic")
+
 #============================================================================
 # Function: LCRD.2
 # ============================================================================
@@ -193,13 +207,81 @@ df_24BPF_defCAT <- read.delim(
 
 D_24BPF_Cat_tpod <- min(df_24BPF_defCAT$BMD.Median, na.rm = TRUE)
 
+D_24BPF_Cat_tpod_path_name <- df_24BPF_defCAT$GO.Pathway.Gene.Set.Gene.Name[df_24BPF_defCAT$BMD.Median == D_24BPF_Cat_tpod]
+
 
 ###########################################################################
 #tpod summary
 
 D_24BPF_tpod_summary <- data.frame(LCRD2 = LCRD2_24BPF_Tpod, First_Mode = First_mode_24BPF_Tpod,twentieth_gene_lower_bound = twenty_gene_24BPF_table[1], twentieth_gene = twenty_gene_24BPF_Tpod,twentieth_gene_upper_bound = twenty_gene_24BPF_table[3], tenth_percentile_lower_bound = tenth_percentile_24BPF_table[1],tenth_percentile = tenth_percentile_24BPF_Tpod, tenth_percentile_upper_bound = tenth_percentile_24BPF_table[3], Lowest_BMC_median_Categorical = D_24BPF_Cat_tpod )
 
+#######################################################################
+LC50_24BPF_median <- 122
+LC50_24BPF_Lower <- 0
+LC50_24BPF_upper <- 0
 ##########################################################################
+#Table
+D_24BPF_table_full <- data.frame(
+  Chemical = c("24BPF", "", "", "","",
+               "", "XXXXXXXXXX", "DRG"),
+  
+  Endpoints = c(
+    "LCRD",
+    "First mode",
+    paste0("Category (", D_24BPF_Cat_tpod_path_name, ")"),
+    "20th gene",
+    "10th percentile",
+    "LC50",
+    "XXXXXXXXXX",
+    DRG_24BPF
+  ),
+  
+  Lower = c(
+    " ",
+    " "," ",
+    twentieth_gene_lower_bound,
+    tenth_percentile_lower_bound,
+    LC50_24BPF_Lower,
+    "XXXXXXXXXX",
+    "TOP DOSE"
+  ),
+  
+  Median = c(
+    LCRD2_24BPF_Tpod,
+    First_mode_24BPF_Tpod,
+    D_24BPF_Cat_tpod,
+    twenty_gene_24BPF_Tpod,
+    tenth_percentile_24BPF_Tpod,
+    LC50_24BPF_median,
+    "XXXXXXXXXX",
+    high_dose_24BPF
+  ),
+  
+  Upper = c(
+    " ",
+    " "," ",
+    twentieth_gene_upper_bound,
+    tenth_percentile_upper_bound,
+    LC50_24BPF_upper,
+    "XXXXXXXXXX",
+    "LOW DOSE"
+  ),
+  
+  Range = c(
+    " ",
+    " "," ",
+    twentieth_gene_upper_bound - twentieth_gene_lower_bound,
+    tenth_percentile_upper_bound - tenth_percentile_lower_bound,
+    LC50_24BPF_upper - LC50_24BPF_Lower,
+    "XXXXXXXXXX",
+    low_dose_24BPF
+  )
+)
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Plots")
+
+write.csv(D_24BPF_table_full, "24BPF_table_full.csv", row.names = FALSE)
+
 ##########################################################################
 #plot
 

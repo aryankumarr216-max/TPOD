@@ -23,6 +23,20 @@ df_BPC <- read.delim(
   skip = 55
 )
 
+DRG_BPC <-as.numeric(nrow(df_BPC))
+
+setwd("C:/Users/KumarA/Downloads/Gene_count_matrices/Gene_count_matrices")
+
+dose_BPC <- read.delim(
+  "BPC_bmdexpress_input_log2_transformed.txt",
+  sep = "\t",
+  header = TRUE)
+
+low_dose_BPC <- min(dose_BPC[1, ][dose_BPC[1, ] != 0], na.rm = TRUE)
+high_dose_BPC <-max(as.numeric(dose_BPC[1, ]), na.rm = TRUE)
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic")
+
 #============================================================================
 # Function: LCRD.2
 # ============================================================================
@@ -197,6 +211,7 @@ df_BPC_defCAT <- read.delim(
 BPC_Cat_tpod <- min(df_BPC_defCAT$BMD.Median, na.rm = TRUE)
 
 
+BPC_Cat_tpod_path_name <- df_BPC_defCAT$GO.Pathway.Gene.Set.Gene.Name[df_BPC_defCAT$BMD.Median == BPC_Cat_tpod]
 
 
 
@@ -205,8 +220,78 @@ BPC_Cat_tpod <- min(df_BPC_defCAT$BMD.Median, na.rm = TRUE)
 
 BPC_tpod_summary <- data.frame(LCRD2 = LCRD2_BPC_Tpod, First_Mode = First_mode_BPC_Tpod, twentieth_gene = twenty_gene_BPC_Tpod, tenth_percentile = tenth_percentile_BPC_Tpod, Lowest_BMC_median_Categorical = BPC_Cat_tpod )
 ###############################################################################
+#LC50 values:
+LC50_BPC_Lower <- (30-9.8)
+LC50_BPC_median <- (30)
+LC50_BPC_upper  <- (30+9.8)
+
+##########################################################################
+#Table
+BPC_table_full <- data.frame(
+  Chemical = c("BPC", "", "", "","",
+               "", "XXXXXXXXXX", "DRG"),
+  
+  Endpoints = c(
+    "LCRD",
+    "First mode",
+    paste0("Category (", BPC_Cat_tpod_path_name, ")"),
+    "20th gene",
+    "10th percentile",
+    "LC50",
+    "XXXXXXXXXX",
+    DRG_BPC
+  ),
+  
+  Lower = c(
+    " ",
+    " "," ",
+    twentieth_gene_lower_bound,
+    tenth_percentile_lower_bound,
+    LC50_BPC_Lower,
+    "XXXXXXXXXX",
+    "TOP DOSE"
+  ),
+  
+  Median = c(
+    LCRD2_BPC_Tpod,
+    First_mode_BPC_Tpod,
+    BPC_Cat_tpod,
+    twenty_gene_BPC_Tpod,
+    tenth_percentile_BPC_Tpod,
+    LC50_BPC_median,
+    "XXXXXXXXXX",
+    high_dose_BPC
+  ),
+  
+  Upper = c(
+    " ",
+    " "," ",
+    twentieth_gene_upper_bound,
+    tenth_percentile_upper_bound,
+    LC50_BPC_upper,
+    "XXXXXXXXXX",
+    "LOW DOSE"
+  ),
+  
+  Range = c(
+    " ",
+    " "," ",
+    twentieth_gene_upper_bound - twentieth_gene_lower_bound,
+    tenth_percentile_upper_bound - tenth_percentile_lower_bound,
+    LC50_BPC_upper - LC50_BPC_Lower,
+    "XXXXXXXXXX",
+    low_dose_BPC
+  )
+)
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Plots")
+
+write.csv(BPC_table_full, "BPC_table_full.csv", row.names = FALSE)
+
+################################################################################
 #graph 
 
+library(dplyr)
 library(ggplot2)
 
 
