@@ -1,9 +1,7 @@
-Chemical,Endpoints,Lower,Median,Upper,Range
-BPC,LCRD, ,0.0918583, , 
-,First mode, ,3.257424699, , 
-,"Category (hydrolase activity, acting on carbon-nitrogen (but not peptide) bonds, in linear amides)", ,0.281433, , 
-,20th gene,0.100917,0.245907,0.413969,0.313052
-,10th percentile,1.01629,0.840296,1.261061,0.244771
-,LC50,20.2,30,39.8,19.6
-XXXXXXXXXX,XXXXXXXXXX,XXXXXXXXXX,XXXXXXXXXX,XXXXXXXXXX,XXXXXXXXXX
-DRG,860,TOP DOSE,10,LOW DOSE,0.001
+"Chemical","Endpoints","Lower","Median","Upper","Range","DRG..Dose.Responsive.Genes.","Top_Dose","Low_Dose"
+"BPC","LCRD",0.0918583,0.0918583,0.203458,0.1115997,"860","10","0.001"
+"","First mode",3.0230174800586,3.24688518020319,3.67175834238263,0.64874086232403,"","",""
+"","Category (hydrolase activity, acting on carbon-nitrogen (but not peptide) bonds, in linear amides)",0.109048,0.281433,1.16099,1.051942,"","",""
+"","20th gene",0.16669,0.245907,0.340177,0.173487,"","",""
+"","10th percentile",0.700796,0.840296,1.069562,0.368766,"","",""
+"","LC50",20.2,30,39.8,19.6,"","",""

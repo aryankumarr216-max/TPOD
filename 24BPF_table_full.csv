@@ -1,9 +1,7 @@
-Chemical,Endpoints,Lower,Median,Upper,Range
-24BPF,LCRD, ,0.227314, , 
-,First mode, ,9.30814753, , 
-,Category (complement receptor mediated signaling pathway), ,0.0402498, , 
-,20th gene,0.100917,0.105864,0.413969,0.313052
-,10th percentile,1.01629,8.86907,1.261061,0.244771
-,LC50,0,122,0,0
-XXXXXXXXXX,XXXXXXXXXX,XXXXXXXXXX,XXXXXXXXXX,XXXXXXXXXX,XXXXXXXXXX
-DRG,5077,TOP DOSE,100,LOW DOSE,0.1
+"Chemical","Endpoints","Lower","Median","Upper","Range","DRG..Dose.Responsive.Genes.","Top_Dose","Low_Dose"
+"24BPF","LCRD",0.0490283,0.0503847848069236,0.246945,0.1979167,"5077","100","0.1"
+"","First mode",8.7154478961802,9.36099630439894,33.9096198971482,25.194172000968,"","",""
+"","Category (complement receptor mediated signaling pathway)",0.0389352,0.0402498,7.53259,7.4936548,"","",""
+"","20th gene",0.10017,0.105864,0.293311,0.193141,"","",""
+"","10th percentile",8.1967248,8.86907,9.367956,1.1712312,"","",""
+"","LC50",0,122,0,0,"","",""
