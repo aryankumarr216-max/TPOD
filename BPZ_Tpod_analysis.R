@@ -26,9 +26,21 @@ df_BPZ <- read.delim(
   header = TRUE,
   skip = 56
 )
+
+#TDR = top dose removed
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/top_dose_removed_BDA")
+
+df_BPZ_TDR <- read.delim(
+  "BPZ_bmdexpress_input_log2_transformed_top_dose_removed_williams_0.05_NOMTC_foldfilter1.5_BMD_filtered.txt",
+  sep = "\t",
+  header = TRUE,
+  skip = 59
+)
 ############### DRG Calculation #############################
 DRG_BPZ <-as.numeric(nrow(df_BPZ))
 
+DRG_BPZ_TDR <-as.numeric(nrow(df_BPZ_TDR))
 
 
 ############### Top Dose and Lose Dose Calculation ########################
@@ -45,6 +57,19 @@ high_dose_BPZ <-max(as.numeric(dose_BPZ[1, ]), na.rm = TRUE)
 
 setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic")
 
+
+#TDR
+setwd("C:/Users/KumarA/Downloads/Gene_count_matrices/Gene_count_matrices/Top_Dose_removed")
+
+dose_D_BPZ_TDR <- read.delim(
+  "BPZ_bmdexpress_input_log2_transformed_top_dose_removed.txt",
+  sep = "\t",
+  header = TRUE)
+
+low_dose_BPZ_TDR <- min(dose_D_BPZ_TDR[1, ][dose_D_BPZ_TDR[1, ] != 0], na.rm = TRUE)
+high_dose_BPZ_TDR <-max(as.numeric(dose_D_BPZ_TDR[1, ]), na.rm = TRUE)
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic")
 
 ####################################################################
 #Boot strap function (summarizes results )
@@ -98,6 +123,13 @@ bmc_BPZ <- as.list(df_BPZ$`Best.BMD`)
 bmc_v_BPZ <- unlist(bmc_BPZ)
 probe_BPZ <-as.list(df_BPZ$`Probe.ID`)
 probe_v_BPZ <- unlist(probe_BPZ)
+
+
+#TDR
+bmc_BPZ_TDR <- as.list(df_BPZ_TDR$`Best.BMD`)
+bmc_v_BPZ_TDR <- unlist(bmc_BPZ_TDR)
+probe_BPZ_TDR <-as.list(df_BPZ_TDR$`Probe.ID`)
+probe_v_BPZ_TDR <- unlist(probe_BPZ_TDR)
 
 
 #LCRD2_BPZ_Tpod_table_non_boot_strap <-LCRD.2(bmc_v_BPZ,probe_v_BPZ)
@@ -205,6 +237,13 @@ LCRD2_BPZ_Tpod_median <-10^(as.numeric(LCRD_BPZ_Tpod_table[2]))
 LCRD2_BPZ_Tpod_lower<-10^(as.numeric(LCRD_BPZ_Tpod_table[1]))
 LCRD2_BPZ_Tpod_upper<-10^(as.numeric(LCRD_BPZ_Tpod_table[3]))
   
+
+#TDR LCRD
+LCRD_BPZ_TDR_Tpod_table<- lcrd_bootstrap(df_BPZ_TDR, seed = 1, repeats = 2000, lcrdratiocut = 1.778, lcrdlogbase = 10)
+LCRD2_BPZ_TDR_Tpod_median <-10^(as.numeric(LCRD_BPZ_TDR_Tpod_table[2]))
+LCRD2_BPZ_TDR_Tpod_lower<-10^(as.numeric(LCRD_BPZ_TDR_Tpod_table[1]))
+LCRD2_BPZ_TDR_Tpod_upper<-10^(as.numeric(LCRD_BPZ_TDR_Tpod_table[3]))
+
 
 # ============================================================================
 # Function: First mode (non-bootstrap)
@@ -447,6 +486,12 @@ First_mode_BPZ_Tpod_median <- as.numeric(First_mode_BPZ_table[2])
 First_mode_BPZ_Tpod_lower <-  as.numeric(First_mode_BPZ_table[1])
 First_mode_BPZ_Tpod_upper <-  as.numeric(First_mode_BPZ_table[3])
 
+#TDR First mode
+First_mode_BPZ_TDR_table <-mode_bootstrap(bmc_v_BPZ_TDR, seed = 1, repeats = 2000)
+First_mode_BPZ_TDR_Tpod_median <- as.numeric(First_mode_BPZ_TDR_table[2])
+First_mode_BPZ_TDR_Tpod_lower <-  as.numeric(First_mode_BPZ_TDR_table[1])
+First_mode_BPZ_TDR_Tpod_upper <-  as.numeric(First_mode_BPZ_TDR_table[3])
+
 
 # ============================================================================
 # Function: 20th Gene (bootstrap)
@@ -467,6 +512,14 @@ twenty_gene_BPZ_table <- nth_gene_bootstrap(bmc_v_BPZ, seed = 1, nth_gene = 20, 
 twenty_gene_BPZ_Tpod_median <- as.numeric(twenty_gene_BPZ_table[2])
 twentieth_gene_lower_bound_BPZ = as.numeric(twenty_gene_BPZ_table[1])
 twentieth_gene_upper_bound_BPZ = as.numeric(twenty_gene_BPZ_table[3])
+
+#TDR 20th Gene
+nth_gene_bootstrap(bmc_v_BPZ_TDR, seed = 1, nth_gene = 20, repeats = 2000)
+twenty_gene_BPZ_TDR_table <- nth_gene_bootstrap(bmc_v_BPZ_TDR, seed = 1, nth_gene = 20, repeats = 2000)
+twenty_gene_BPZ_TDR_Tpod_median <- as.numeric(twenty_gene_BPZ_TDR_table[2])
+twentieth_gene_lower_bound_BPZ_TDR = as.numeric(twenty_gene_BPZ_TDR_table[1])
+twentieth_gene_upper_bound_BPZ_TDR = as.numeric(twenty_gene_BPZ_TDR_table[3])
+
 # ============================================================================
 # Function: 10th Percentile (bootstrap)
 # ============================================================================
@@ -487,6 +540,15 @@ tenth_percentile_BPZ_Tpod_median <- as.numeric(tenth_percentile_BPZ_table[2])
 
 tenth_percentile_lower_bound_BPZ = as.numeric(tenth_percentile_BPZ_table[1])
 tenth_percentile_upper_bound_BPZ = as.numeric(tenth_percentile_BPZ_table[3])
+
+#TDR 10th percentile
+nth_percent_bootstrap (bmc_v_BPZ_TDR, seed = 1, nth_percent = 10, repeats = 2000)
+tenth_percentile_BPZ_TDR_table <- nth_percent_bootstrap (bmc_v_BPZ_TDR, seed = 1, nth_percent = 10, repeats = 2000)
+tenth_percentile_BPZ_TDR_Tpod_median <- as.numeric(tenth_percentile_BPZ_TDR_table[2])
+
+tenth_percentile_lower_bound_BPZ_TDR = as.numeric(tenth_percentile_BPZ_TDR_table[1])
+tenth_percentile_upper_bound_BPZ_TDR = as.numeric(tenth_percentile_BPZ_TDR_table[3])
+
 # ============================================================================
 #Defined category Analysis Tpod (lowest median BMD)
 # ============================================================================
@@ -540,6 +602,30 @@ BPZ_Cat_tpod_median <-as.numeric(BPZ_Def_Cat_tpod_table[2])
 BPZ_Cat_tpod_lower <-as.numeric(BPZ_Def_Cat_tpod_table[1])
 BPZ_Cat_tpod_upper <-as.numeric(BPZ_Def_Cat_tpod_table[3])
 
+#TDR Defind cat
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Defined Category analysis/top_dose_removed")
+list.files()
+df_D_BPZ_TDR_defCAT <- read.delim(
+  "BPZ_bmdexpress_input_log2_transformed_top_dose_removed_filtered.txt",
+  sep = "\t",
+  header = TRUE,
+  skip = 83
+)
+
+D_BPZ_TDR_Cat_tpod_min <- min(df_D_BPZ_TDR_defCAT$BMD.Median, na.rm = TRUE)
+
+D_BPZ_TDR_Cat_tpod_path_name <- df_D_BPZ_TDR_defCAT$GO.Pathway.Gene.Set.Gene.Name[df_D_BPZ_TDR_defCAT$BMD.Median == D_BPZ_TDR_Cat_tpod_min]
+
+D_BPZ_TDR_Cat_tpod_list_bootstrap <- df_D_BPZ_TDR_defCAT$BMD.List[df_D_BPZ_TDR_defCAT$BMD.Median == D_BPZ_TDR_Cat_tpod_min]
+
+D_BPZ_TDR_Cat_tpod_list_bootstrap_num <- as.numeric(strsplit(D_BPZ_TDR_Cat_tpod_list_bootstrap, ";")[[1]])
+
+
+D_BPZ_TDR_Def_Cat_tpod_table <- pathway_bootstrap(D_BPZ_TDR_Cat_tpod_list_bootstrap_num, seed = 1, repeats = 2000)
+D_BPZ_TDR_Cat_tpod_median <-as.numeric(D_BPZ_TDR_Def_Cat_tpod_table[2])
+D_BPZ_TDR_Cat_tpod_lower <-as.numeric(D_BPZ_TDR_Def_Cat_tpod_table[1])
+D_BPZ_TDR_Cat_tpod_upper <-as.numeric(D_BPZ_TDR_Def_Cat_tpod_table[3])
+
 ###########################################################################
 #tpod summary
 
@@ -553,6 +639,11 @@ tenth_percentile_upper_bound_BPZ = as.numeric(tenth_percentile_BPZ_table[3])
 LC50_BPZ_Lower <- (16.2-7.0)
 LC50_BPZ_median <- (16.2)
 LC50_BPZ_upper  <- (16.2+7.0)
+
+#TDR LC50
+LC50_BPZ_TDR_Lower <- (16.2-7.0)
+LC50_BPZ_TDR_median <- (16.2)
+LC50_BPZ_TDR_upper  <- (16.2+7.0)
 ##########################################################################
 #Table
 BPZ_table_full <- data.frame(
@@ -611,73 +702,80 @@ BPZ_table_full <- data.frame(
 setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Plots")
 
 write.csv(BPZ_table_full, "BPZ_table_full.csv", row.names = FALSE)
-##########################################################################
-#plot
 
+
+#TDR table 
+D_BPZ_TDR_table_full <- data.frame(
+  Chemical = c("BPZ_TDR", "", "", "", "", ""),
+  
+  Endpoints = c(
+    "LCRD",
+    "First mode",
+    paste0("Category (", D_BPZ_TDR_Cat_tpod_path_name, ")"),
+    "20th gene",
+    "10th percentile",
+    "LC50"
+  ),
+  
+  Lower = c(
+    LCRD2_BPZ_TDR_Tpod_lower,
+    First_mode_BPZ_TDR_Tpod_lower,
+    D_BPZ_TDR_Cat_tpod_lower,
+    twentieth_gene_lower_bound_BPZ_TDR,
+    tenth_percentile_lower_bound_BPZ_TDR,
+    LC50_BPZ_TDR_Lower
+  ),
+  
+  Median = c(
+    LCRD2_BPZ_TDR_Tpod_median,
+    First_mode_BPZ_TDR_Tpod_median,
+    D_BPZ_TDR_Cat_tpod_median,
+    twenty_gene_BPZ_TDR_Tpod_median,
+    tenth_percentile_BPZ_TDR_Tpod_median,
+    LC50_BPZ_TDR_median
+  ),
+  
+  Upper = c(
+    LCRD2_BPZ_TDR_Tpod_upper,
+    First_mode_BPZ_TDR_Tpod_upper,
+    D_BPZ_TDR_Cat_tpod_upper,
+    twentieth_gene_upper_bound_BPZ_TDR,
+    tenth_percentile_upper_bound_BPZ_TDR,
+    LC50_BPZ_TDR_upper
+  ),
+  
+  Range = c(
+    LCRD2_BPZ_TDR_Tpod_upper - LCRD2_BPZ_TDR_Tpod_lower,
+    First_mode_BPZ_TDR_Tpod_upper - First_mode_BPZ_TDR_Tpod_lower,
+    D_BPZ_TDR_Cat_tpod_upper - D_BPZ_TDR_Cat_tpod_lower,
+    twentieth_gene_upper_bound_BPZ_TDR - twentieth_gene_lower_bound_BPZ_TDR,
+    tenth_percentile_upper_bound_BPZ_TDR - tenth_percentile_lower_bound_BPZ_TDR,
+    LC50_BPZ_TDR_upper - LC50_BPZ_TDR_Lower
+  ),
+  
+  `DRG (Dose Responsive Genes)` = c(DRG_BPZ_TDR, "", "", "", "", ""),
+  Top_Dose = c(high_dose_BPZ_TDR, "", "", "", "", ""),
+  Low_Dose = c(low_dose_BPZ_TDR, "", "", "", "", ""))
+
+#Full table merged
 library(dplyr)
-library(ggplot2)
 
-# Calculate the 10th percentile
-p10 <- quantile(df_BPZ$Best.BMD, 0.10, na.rm = TRUE)
+empty_row <- as.data.frame(
+  matrix(" ", nrow = 1, ncol = ncol(BPZ_table_full))
+)
 
-# Density plot with percentile marker
-ggplot(df_BPZ, aes(x = Best.BMD)) +
-  geom_density(fill = "lightblue", alpha = 0.4) +
-  geom_vline(xintercept = p10,
-             linetype = "dashed",
-             color = "red") +
-  annotate("text",
-           x = p10,
-           y = 0.02,
-           label = "10th percentile",
-           hjust = -0.1) +
-  labs(x = "Best.BMD",
-       y = "Density")
+merged_BPZ_FULL_Table_1 <- bind_rows(
+  BPZ_table_full,
+  empty_row,
+  D_BPZ_TDR_table_full
+)
 
+merged_BPZ_FULL_Table <- merged_BPZ_FULL_Table_1[,1:9]
 
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Plots")
 
-df <- df_BPZ %>%
-  mutate(logBestBMD = log10(Best.BMD))
+write.csv(merged_BPZ_FULL_Table, "BPZ_table_full_TDR_merged.csv", row.names = FALSE)
 
-ggplot(df, aes(x = logBestBMD)) +
-  geom_density() +
-  labs(x = "log10(Best.BMD)")
-
-
-
-
-
-
-#tpod variables: LCRD2_BPZ_Tpod, LCRD2_BPZ_Tpod, twenty_gene_BPZ_Tpod, tenth_perecentile_BPZ_Tpod, BPZ_Cat_tpod
-
-df <- df_BPZ %>%
-  mutate(logBestBMD = log10(Best.BMD))
-
-ggplot(df, aes(x = logBestBMD)) +
-  geom_density(fill = "lightblue", alpha = 0.4) +
-  
-  geom_vline(xintercept = log10(p10),
-             linetype = "dashed",
-             color = "red") +
-  
-  geom_vline(xintercept = log10(LCRD2_BPZ_Tpod_median),
-             linetype = "dashed",
-             color = "blue") +
-  
-  geom_vline(xintercept = log10(First_mode_BPZ_Tpod_median),
-             linetype = "dashed",
-             color = "green") +
-  
-  geom_vline(xintercept = log10(twenty_gene_BPZ_Tpod_median),
-             linetype = "dashed",
-             color = "purple") +
-  
-  geom_vline(xintercept = log10(BPZ_Cat_tpod_median),
-             linetype = "dashed",
-             color = "pink") +
-  
-  labs(x = "log10(Best.BMD)",
-       y = "Density")
 
 ######################################################
 #Density plot generation
@@ -695,7 +793,9 @@ tpod_df <- data.frame(
     LCRD2_BPZ_Tpod_median,
     First_mode_BPZ_Tpod_median,
     twenty_gene_BPZ_Tpod_median,
-    BPZ_Cat_tpod_median
+    BPZ_Cat_tpod_median,
+    as.numeric(high_dose_BPZ),
+    as.numeric(low_dose_BPZ)
   )),
   
   label = c(
@@ -703,7 +803,9 @@ tpod_df <- data.frame(
     paste0("LCRD = ", round((LCRD2_BPZ_Tpod_median), 3)),
     paste0("First Mode = ", round((First_mode_BPZ_Tpod_median), 3)),
     paste0("20th Gene = ", round((twenty_gene_BPZ_Tpod_median), 3)),
-    paste0("Category = ", round((BPZ_Cat_tpod_median), 3))
+    paste0("Category = ", round((BPZ_Cat_tpod_median), 3)),
+    paste0("Top dose = ", as.numeric(high_dose_BPZ)),
+    paste0("Low dose = ", as.numeric(low_dose_BPZ))
   )
 )
 
@@ -720,7 +822,7 @@ ggplot(df, aes(x = logBestBMD)) +
   
   geom_text(data = tpod_df,
             aes(x = value + 0.05,
-                y = c(0.02, 0.04, 0.06, 0.08, 0.10),
+                y = c(0.02, 0.04, 0.06, 0.08, 0.10,0.12,0.14),
                 label = round(value, 3),
                 color = label),
             angle = 90,
@@ -737,6 +839,87 @@ ggplot(df, aes(x = logBestBMD)) +
          "   |    Low Dose = ", low_dose_BPZ
        )
   )
+
+
+######################################################
+#TDR Plot
+
+######################################################
+#Density plot generation
+
+library(dplyr)
+library(ggplot2)
+
+df <- df_BPZ_TDR %>%
+  mutate(logBestBMD = log10(Best.BMD))
+
+# Dataframe for TPoD lines
+tpod_df <- data.frame(
+  value = log10(c(
+    p10,
+    LCRD2_BPZ_TDR_Tpod_median,
+    First_mode_BPZ_TDR_Tpod_median,
+    twenty_gene_BPZ_TDR_Tpod_median,
+    D_BPZ_TDR_Cat_tpod_median,
+    as.numeric(high_dose_BPZ_TDR),
+    as.numeric(low_dose_BPZ_TDR)
+  )),
+  
+  label = c(
+    paste0("10th Percentile = ", round(p10, 3)),
+    paste0("LCRD = ", round((LCRD2_BPZ_TDR_Tpod_median), 3)),
+    paste0("First Mode = ", round((First_mode_BPZ_TDR_Tpod_median), 3)),
+    paste0("20th Gene = ", round((twenty_gene_BPZ_TDR_Tpod_median), 3)),
+    paste0("Category = ", round((D_BPZ_TDR_Cat_tpod_median), 3)),
+    paste0("Top dose = ", as.numeric(high_dose_BPZ_TDR)),
+    paste0("Low dose = ", as.numeric(low_dose_BPZ_TDR))
+  )
+)
+
+
+ggplot(df, aes(x = logBestBMD)) +
+  
+  geom_density(fill = "lightblue", alpha = 0.4) +
+  
+  geom_vline(data = tpod_df,
+             aes(xintercept = value,
+                 color = label),
+             linetype = "dashed",
+             linewidth = 1) +
+  
+  geom_text(data = tpod_df,
+            aes(x = value + 0.05,
+                y = c(0.02, 0.04, 0.06, 0.08, 0.10,0.12,0.14),
+                label = round(value, 3),
+                color = label),
+            angle = 90,
+            hjust = 0,
+            show.legend = FALSE) +
+  
+  labs(x = "log10(Best.BMD)",
+       y = "Density",
+       color = "TPoD Methods",
+       title = "                                            Distribution of Best BMD Values for BPZ_TDR",  
+       subtitle = paste0(
+         "                                                  DRG = ", round(DRG_BPZ_TDR, 3),
+         "   |    Top Dose = ", high_dose_BPZ_TDR,
+         "   |    Low Dose = ", low_dose_BPZ_TDR
+       )
+  )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

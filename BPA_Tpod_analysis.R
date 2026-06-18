@@ -27,8 +27,21 @@ df_BPA <- read.delim(
   skip = 56
 )
 
+#TDR = top dose removed
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/top_dose_removed_BDA")
+
+df_BPA_TDR <- read.delim(
+  "BPA_bmdexpress_input_log2_transformed_top_dose_removed_williams_0.05_NOMTC_foldfilter1.5_BMD_1_filtered.txt",
+  sep = "\t",
+  header = TRUE,
+  skip = 55
+)
+
 ############### DRG Calculation #############################
 DRG_BPA <-as.numeric(nrow(df_BPA))
+
+DRG_BPA_TDR <-as.numeric(nrow(df_BPA_TDR))
 
 ############### Top Dose and Lose Dose Calculation ########################
 
@@ -43,6 +56,20 @@ low_dose_BPA <- min(dose_BPA[1, ][dose_BPA[1, ] != 0], na.rm = TRUE)
 high_dose_BPA <-max(as.numeric(dose_BPA[1, ]), na.rm = TRUE)
 
 setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic")
+
+#TDR
+setwd("C:/Users/KumarA/Downloads/Gene_count_matrices/Gene_count_matrices/Top_Dose_removed")
+
+dose_D_BPA_TDR <- read.delim(
+  "BPA_bmdexpress_input_log2_transformed_top_dose_removed.txt",
+  sep = "\t",
+  header = TRUE)
+
+low_dose_BPA_TDR <- min(dose_D_BPA_TDR[1, ][dose_D_BPA_TDR[1, ] != 0], na.rm = TRUE)
+high_dose_BPA_TDR <-max(as.numeric(dose_D_BPA_TDR[1, ]), na.rm = TRUE)
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic")
+
 
 # ============================================================================
 # Function: LCRD (non-bootstrap)
@@ -82,6 +109,13 @@ bmc_BPA <- as.list(df_BPA$`Best.BMD`)
 bmc_v_BPA <- unlist(bmc_BPA)
 probe_BPA <-as.list(df_BPA$`Probe.ID`)
 probe_v_BPA <- unlist(probe_BPA)
+
+#TDR
+bmc_BPA_TDR <- as.list(df_BPA_TDR$`Best.BMD`)
+bmc_v_BPA_TDR <- unlist(bmc_BPA_TDR)
+probe_BPA_TDR <-as.list(df_BPA_TDR$`Probe.ID`)
+probe_v_BPA_TDR <- unlist(probe_BPA_TDR)
+
 
 
 LCRD2_BPA_Tpod_table_non_boot_strap <-LCRD.2(bmc_v_BPA,probe_v_BPA)
@@ -203,14 +237,18 @@ summary(boot_lcrd)
 table(boot_lcrd)
 length(unique(boot_lcrd))
 
-lcrd_bootstrap(df_BPA, seed = 1, repeats = 1, lcrdratiocut = 1.778, lcrdlogbase = 10)
-library(dplyr)
-chemname <- "BPA"
 
 LCRD_BPA_Tpod_table<- lcrd_bootstrap(df_BPA, seed = 1, repeats = 2000, lcrdratiocut = 1.778, lcrdlogbase = 10)
 LCRD2_BPA_Tpod_median <-10^(as.numeric(LCRD_BPA_Tpod_table[2]))
 LCRD2_BPA_Tpod_lower<-10^(as.numeric(LCRD_BPA_Tpod_table[1]))
 LCRD2_BPA_Tpod_upper<-10^(as.numeric(LCRD_BPA_Tpod_table[3]))
+
+
+#TDR LCRD
+LCRD_BPA_TDR_Tpod_table<- lcrd_bootstrap(df_BPA_TDR, seed = 1, repeats = 2000, lcrdratiocut = 1.778, lcrdlogbase = 10)
+LCRD2_BPA_TDR_Tpod_median <-10^(as.numeric(LCRD_BPA_TDR_Tpod_table[2]))
+LCRD2_BPA_TDR_Tpod_lower<-10^(as.numeric(LCRD_BPA_TDR_Tpod_table[1]))
+LCRD2_BPA_TDR_Tpod_upper<-10^(as.numeric(LCRD_BPA_TDR_Tpod_table[3]))
 
 # ============================================================================
 # Function: First mode (non-bootstrap)
@@ -288,6 +326,8 @@ First.Mode <- function(bmc, log_base = 10, bw = "nrd0", min.size = 0.1) {
 First.Mode(bmc_v_BPA)
 First_mode_BPA_table_non_boot_strap <- First.Mode(bmc_v_BPA)
 First_mode_BPA_Tpod_non_boot_strap <- First_mode_BPA_table$First_Mode
+
+
 # ============================================================================
 # Function: First mode (bootstrap)
 # ============================================================================
@@ -436,16 +476,17 @@ mode_bootstrap <- function(x, seed = 1, repeats = 2000, min_size = 0.06, min_bw 
 
 
 
-  First_mode_BPA_table <-mode_bootstrap(bmc_v_BPA, seed = 1, repeats = 2000)
+First_mode_BPA_table <-mode_bootstrap(bmc_v_BPA, seed = 1, repeats = 2000)
 
-
-#mode_bootstrap(bmc_v_BPA, seed = 1, repeats = 2000, min_size = 0.06, min_bw = 0.01)
-#First_mode_BPA_table <-mode_bootstrap(bmc_v_BPA, seed = 1, repeats = 2000, min_size = 0.06, min_bw = 0.15)
 First_mode_BPA_Tpod_median <- as.numeric(First_mode_BPA_table[2])
 First_mode_BPA_Tpod_lower <-  as.numeric(First_mode_BPA_table[1])
 First_mode_BPA_Tpod_upper <-  as.numeric(First_mode_BPA_table[3])
 
-
+#TDR First mode
+First_mode_BPA_TDR_table <-mode_bootstrap(bmc_v_BPA_TDR, seed = 1, repeats = 2000)
+First_mode_BPA_TDR_Tpod_median <- as.numeric(First_mode_BPA_TDR_table[2])
+First_mode_BPA_TDR_Tpod_lower <-  as.numeric(First_mode_BPA_TDR_table[1])
+First_mode_BPA_TDR_Tpod_upper <-  as.numeric(First_mode_BPA_TDR_table[3])
 
 # ============================================================================
 # Function: 20th Gene (bootstrap)
@@ -466,6 +507,14 @@ twenty_gene_BPA_table <- nth_gene_bootstrap(bmc_v_BPA, seed = 1, nth_gene = 20, 
 twenty_gene_BPA_Tpod_median <- as.numeric(twenty_gene_BPA_table[2])
 twentieth_gene_lower_bound_BPA = as.numeric(twenty_gene_BPA_table[1])
 twentieth_gene_upper_bound_BPA = as.numeric(twenty_gene_BPA_table[3])
+
+#TDR 20th Gene
+nth_gene_bootstrap(bmc_v_BPA_TDR, seed = 1, nth_gene = 20, repeats = 2000)
+twenty_gene_BPA_TDR_table <- nth_gene_bootstrap(bmc_v_BPA_TDR, seed = 1, nth_gene = 20, repeats = 2000)
+twenty_gene_BPA_TDR_Tpod_median <- as.numeric(twenty_gene_BPA_TDR_table[2])
+twentieth_gene_lower_bound_BPA_TDR = as.numeric(twenty_gene_BPA_TDR_table[1])
+twentieth_gene_upper_bound_BPA_TDR = as.numeric(twenty_gene_BPA_TDR_table[3])
+
 
 # ============================================================================
 # Function: 10th Percentile (bootstrap)
@@ -489,6 +538,14 @@ tenth_percentile_BPA_Tpod_median <- as.numeric(tenth_percentile_BPA_table[2])
 tenth_percentile_lower_bound_BPA = as.numeric(tenth_percentile_BPA_table[1])
 tenth_percentile_upper_bound_BPA = as.numeric(tenth_percentile_BPA_table[3])
 
+#TDR 10th percentile
+nth_percent_bootstrap (bmc_v_BPA_TDR, seed = 1, nth_percent = 10, repeats = 2000)
+tenth_percentile_BPA_TDR_table <- nth_percent_bootstrap (bmc_v_BPA_TDR, seed = 1, nth_percent = 10, repeats = 2000)
+tenth_percentile_BPA_TDR_Tpod_median <- as.numeric(tenth_percentile_BPA_TDR_table[2])
+
+tenth_percentile_lower_bound_BPA_TDR = as.numeric(tenth_percentile_BPA_TDR_table[1])
+tenth_percentile_upper_bound_BPA_TDR = as.numeric(tenth_percentile_BPA_TDR_table[3])
+
 # ============================================================================
 #Defined category Analysis Tpod (lowest median BMD)
 # ============================================================================
@@ -505,7 +562,7 @@ df_BPA_defCAT <- read.delim(
 
 BPA_Cat_tpod_min <- min(df_BPA_defCAT$BMD.Median, na.rm = TRUE)
 
-BPA_Cat_tpod_path_name <- df_BPA_defCAT$GO.Pathway.Gene.Set.Gene.Name[df_BPA_defCAT$BMD.Median == BPA_Cat_tpod]
+BPA_Cat_tpod_path_name <- df_BPA_defCAT$GO.Pathway.Gene.Set.Gene.Name[df_BPA_defCAT$BMD.Median == BPA_Cat_tpod_min]
 
 BPA_Cat_tpod_list_bootstrap <- df_BPA_defCAT$BMD.List[df_BPA_defCAT$BMD.Median == BPA_Cat_tpod_min]
 
@@ -540,20 +597,41 @@ BPA_Def_Cat_tpod_table <- pathway_bootstrap(BPA_Cat_tpod_list_bootstrap_num, see
 BPA_Cat_tpod_median <-as.numeric(BPA_Def_Cat_tpod_table[2])
 BPA_Cat_tpod_lower <-as.numeric(BPA_Def_Cat_tpod_table[1])
 BPA_Cat_tpod_upper <-as.numeric(BPA_Def_Cat_tpod_table[3])
-###########################################################################
-#tpod summary
 
-BPA_tpod_summary <- data.frame(LCRD2 = LCRD2_BPA_Tpod, First_Mode = First_mode_BPA_Tpod,twentieth_gene_lower_bound = twenty_gene_BPA_table[1], twentieth_gene = twenty_gene_BPA_Tpod,twentieth_gene_upper_bound = twenty_gene_BPA_table[3], tenth_percentile_lower_bound = tenth_percentile_BPA_table[1],tenth_percentile = tenth_percentile_BPA_Tpod, tenth_percentile_upper_bound = tenth_percentile_BPA_table[3], Lowest_BMC_median_Categorical = BPA_Cat_tpod )
-twentieth_gene_lower_bound_BPA = as.numeric(twenty_gene_BPA_table[1])
-twentieth_gene_upper_bound_BPA = as.numeric(twenty_gene_BPA_table[3])
-tenth_percentile_lower_bound_BPA = as.numeric(tenth_percentile_BPA_table[1])
-tenth_percentile_upper_bound_BPA = as.numeric(tenth_percentile_BPA_table[3])
+
+#TDR Defind cat
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Defined Category analysis/top_dose_removed")
+list.files()
+df_D_BPA_TDR_defCAT <- read.delim(
+  "BPA_bmdexpress_input_log2_transformed_top_dose_removed_filtered.txt",
+  sep = "\t",
+  header = TRUE,
+  skip = 79
+)
+
+D_BPA_TDR_Cat_tpod_min <- min(df_D_BPA_TDR_defCAT$BMD.Median, na.rm = TRUE)
+
+D_BPA_TDR_Cat_tpod_path_name <- df_D_BPA_TDR_defCAT$GO.Pathway.Gene.Set.Gene.Name[df_D_BPA_TDR_defCAT$BMD.Median == D_BPA_TDR_Cat_tpod_min]
+
+D_BPA_TDR_Cat_tpod_list_bootstrap <- df_D_BPA_TDR_defCAT$BMD.List[df_D_BPA_TDR_defCAT$BMD.Median == D_BPA_TDR_Cat_tpod_min]
+
+D_BPA_TDR_Cat_tpod_list_bootstrap_num <- as.numeric(strsplit(D_BPA_TDR_Cat_tpod_list_bootstrap, ";")[[1]])
+
+
+D_BPA_TDR_Def_Cat_tpod_table <- pathway_bootstrap(D_BPA_TDR_Cat_tpod_list_bootstrap_num, seed = 1, repeats = 2000)
+D_BPA_TDR_Cat_tpod_median <-as.numeric(D_BPA_TDR_Def_Cat_tpod_table[2])
+D_BPA_TDR_Cat_tpod_lower <-as.numeric(D_BPA_TDR_Def_Cat_tpod_table[1])
+D_BPA_TDR_Cat_tpod_upper <-as.numeric(D_BPA_TDR_Def_Cat_tpod_table[3])
 #####################################################################################
 #LC50 values:
 LC50_BPA_Lower <- (61.7-43.1)
 LC50_BPA_median <- (61.7)
 LC50_BPA_upper  <- (61.7+43.1)
 
+#TDR LC50
+LC50_BPA_TDR_Lower <- (61.7-43.1)
+LC50_BPA_TDR_median <- (61.7)
+LC50_BPA_TDR_upper  <- (61.7+43.1)
 ##########################################################################
 #Table
 BPA_table_full <- data.frame(
@@ -612,73 +690,83 @@ BPA_table_full <- data.frame(
 setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Plots")
 
 write.csv(BPA_table_full, "BPA_table_full.csv", row.names = FALSE)
+
+
+
+#TDR table 
+D_BPA_TDR_table_full <- data.frame(
+  Chemical = c("BPA_TDR", "", "", "", "", ""),
+  
+  Endpoints = c(
+    "LCRD",
+    "First mode",
+    paste0("Category (", D_BPA_TDR_Cat_tpod_path_name, ")"),
+    "20th gene",
+    "10th percentile",
+    "LC50"
+  ),
+  
+  Lower = c(
+    LCRD2_BPA_TDR_Tpod_lower,
+    First_mode_BPA_TDR_Tpod_lower,
+    D_BPA_TDR_Cat_tpod_lower,
+    twentieth_gene_lower_bound_BPA_TDR,
+    tenth_percentile_lower_bound_BPA_TDR,
+    LC50_BPA_TDR_Lower
+  ),
+  
+  Median = c(
+    LCRD2_BPA_TDR_Tpod_median,
+    First_mode_BPA_TDR_Tpod_median,
+    D_BPA_TDR_Cat_tpod_median,
+    twenty_gene_BPA_TDR_Tpod_median,
+    tenth_percentile_BPA_TDR_Tpod_median,
+    LC50_BPA_TDR_median
+  ),
+  
+  Upper = c(
+    LCRD2_BPA_TDR_Tpod_upper,
+    First_mode_BPA_TDR_Tpod_upper,
+    D_BPA_TDR_Cat_tpod_upper,
+    twentieth_gene_upper_bound_BPA_TDR,
+    tenth_percentile_upper_bound_BPA_TDR,
+    LC50_BPA_TDR_upper
+  ),
+  
+  Range = c(
+    LCRD2_BPA_TDR_Tpod_upper - LCRD2_BPA_TDR_Tpod_lower,
+    First_mode_BPA_TDR_Tpod_upper - First_mode_BPA_TDR_Tpod_lower,
+    D_BPA_TDR_Cat_tpod_upper - D_BPA_TDR_Cat_tpod_lower,
+    twentieth_gene_upper_bound_BPA_TDR - twentieth_gene_lower_bound_BPA_TDR,
+    tenth_percentile_upper_bound_BPA_TDR - tenth_percentile_lower_bound_BPA_TDR,
+    LC50_BPA_TDR_upper - LC50_BPA_TDR_Lower
+  ),
+  
+  `DRG (Dose Responsive Genes)` = c(DRG_BPA_TDR, "", "", "", "", ""),
+  Top_Dose = c(high_dose_BPA_TDR, "", "", "", "", ""),
+  Low_Dose = c(low_dose_BPA_TDR, "", "", "", "", ""))
+
+#Full table merged
+library(dplyr)
+
+empty_row <- as.data.frame(
+  matrix(" ", nrow = 1, ncol = ncol(BPA_table_full))
+)
+
+merged_BPA_FULL_Table_1 <- bind_rows(
+  BPA_table_full,
+  empty_row,
+  D_BPA_TDR_table_full
+)
+
+merged_BPA_FULL_Table <- merged_BPA_FULL_Table_1[,1:9]
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Plots")
+
+write.csv(merged_BPA_FULL_Table, "BPA_table_full_TDR_merged.csv", row.names = FALSE)
+
 ##########################################################################
 #plot
-
-library(dplyr)
-library(ggplot2)
-
-# Calculate the 10th percentile
-p10 <- quantile(df_BPA$Best.BMD, 0.10, na.rm = TRUE)
-
-# Density plot with percentile marker
-ggplot(df_BPA, aes(x = Best.BMD)) +
-  geom_density(fill = "lightblue", alpha = 0.4) +
-  geom_vline(xintercept = p10,
-             linetype = "dashed",
-             color = "red") +
-  annotate("text",
-           x = p10,
-           y = 0.02,
-           label = "10th percentile",
-           hjust = -0.1) +
-  labs(x = "Best.BMD",
-       y = "Density")
-
-
-
-df <- df_BPA %>%
-  mutate(logBestBMD = log10(Best.BMD))
-
-ggplot(df, aes(x = logBestBMD)) +
-  geom_density() +
-  labs(x = "log10(Best.BMD)")
-
-
-
-
-
-
-#tpod variables: LCRD2_BPA_Tpod, LCRD2_BPA_Tpod, twenty_gene_BPA_Tpod, tenth_perecentile_BPA_Tpod, BPA_Cat_tpod
-
-df <- df_BPA %>%
-  mutate(logBestBMD = log10(Best.BMD))
-
-ggplot(df, aes(x = logBestBMD)) +
-  geom_density(fill = "lightblue", alpha = 0.4) +
-  
-  geom_vline(xintercept = log10(p10),
-             linetype = "dashed",
-             color = "red") +
-  
-  geom_vline(xintercept = log10(LCRD2_BPA_Tpod_median),
-             linetype = "dashed",
-             color = "blue") +
-  
-  geom_vline(xintercept = log10(First_mode_BPA_Tpod_median),
-             linetype = "dashed",
-             color = "green") +
-  
-  geom_vline(xintercept = log10(twenty_gene_BPA_Tpod_median),
-             linetype = "dashed",
-             color = "purple") +
-  
-  geom_vline(xintercept = log10(BPA_Cat_tpod_median),
-             linetype = "dashed",
-             color = "pink") +
-  
-  labs(x = "log10(Best.BMD)",
-       y = "Density")
 
 ######################################################
 #Density plot generation
@@ -695,8 +783,10 @@ tpod_df <- data.frame(
     p10,
     LCRD2_BPA_Tpod_median,
     First_mode_BPA_Tpod_median,
-    twenty_gene_BPA_Tpod,
-    BPA_Cat_tpod_median
+    twenty_gene_BPA_Tpod_median,
+    BPA_Cat_tpod_median,
+    as.numeric(high_dose_BPA),
+    as.numeric(low_dose_BPA)
   )),
   
   label = c(
@@ -704,7 +794,9 @@ tpod_df <- data.frame(
     paste0("LCRD = ", round((LCRD2_BPA_Tpod_median), 3)),
     paste0("First Mode = ", round((First_mode_BPA_Tpod_median), 3)),
     paste0("20th Gene = ", round((twenty_gene_BPA_Tpod_median), 3)),
-    paste0("Category = ", round((BPA_Cat_tpod_median), 3))
+    paste0("Category = ", round((D_BPA_TDR_Cat_tpod_median), 3)),
+    paste0("Top dose = ", as.numeric(high_dose_BPA)),
+    paste0("Low dose = ", as.numeric(low_dose_BPA))
   )
 )
 
@@ -721,7 +813,7 @@ ggplot(df, aes(x = logBestBMD)) +
   
   geom_text(data = tpod_df,
             aes(x = value + 0.05,
-                y = c(0.02, 0.04, 0.06, 0.08, 0.10),
+                y = c(0.02, 0.04, 0.06, 0.08, 0.10,0.12,0.14),
                 label = round(value, 3),
                 color = label),
             angle = 90,
@@ -739,6 +831,75 @@ ggplot(df, aes(x = logBestBMD)) +
        )
   )
 
+
+
+
+###############################################################################
+
+#TDR Plot
+
+######################################################
+#Density plot generation
+
+library(dplyr)
+library(ggplot2)
+
+df <- df_BPA_TDR %>%
+  mutate(logBestBMD = log10(Best.BMD))
+
+# Dataframe for TPoD lines
+tpod_df <- data.frame(
+  value = log10(c(
+    p10,
+    LCRD2_BPA_TDR_Tpod_median,
+    First_mode_BPA_TDR_Tpod_median,
+    twenty_gene_BPA_TDR_Tpod_median,
+    D_BPA_TDR_Cat_tpod_median,
+    as.numeric(high_dose_BPA_TDR),
+    as.numeric(low_dose_BPA_TDR)
+  )),
+  
+  label = c(
+    paste0("10th Percentile = ", round(p10, 3)),
+    paste0("LCRD = ", round((LCRD2_BPA_TDR_Tpod_median), 3)),
+    paste0("First Mode = ", round((First_mode_BPA_TDR_Tpod_median), 3)),
+    paste0("20th Gene = ", round((twenty_gene_BPA_TDR_Tpod_median), 3)),
+    paste0("Category = ", round((D_BPA_TDR_Cat_tpod_median), 3)),
+    paste0("Top dose = ", as.numeric(high_dose_BPA_TDR)),
+    paste0("Low dose = ", as.numeric(low_dose_BPA_TDR))
+  )
+)
+
+
+ggplot(df, aes(x = logBestBMD)) +
+  
+  geom_density(fill = "lightblue", alpha = 0.4) +
+  
+  geom_vline(data = tpod_df,
+             aes(xintercept = value,
+                 color = label),
+             linetype = "dashed",
+             linewidth = 1) +
+  
+  geom_text(data = tpod_df,
+            aes(x = value + 0.05,
+                y = c(0.02, 0.04, 0.06, 0.08, 0.10,0.12,0.14),
+                label = round(value, 3),
+                color = label),
+            angle = 90,
+            hjust = 0,
+            show.legend = FALSE) +
+  
+  labs(x = "log10(Best.BMD)",
+       y = "Density",
+       color = "TPoD Methods",
+       title = "                                            Distribution of Best BMD Values for BPA_TDR",  
+       subtitle = paste0(
+         "                                                  DRG = ", round(DRG_BPA_TDR, 3),
+         "   |    Top Dose = ", high_dose_BPA_TDR,
+         "   |    Low Dose = ", low_dose_BPA_TDR
+       )
+  )
 
 
 

@@ -26,9 +26,22 @@ df_24BPF <- read.delim(
   header = TRUE,
   skip = 56
 )
+#TDR = top dose removed
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/top_dose_removed_BDA")
+
+df_24BPF_TDR <- read.delim(
+  "24BPF_bmdexpress_input_log2_transformed_top_dose_removed_williams_0.05_NOMTC_foldfilter1.5_BMD.txt",
+  sep = "\t",
+  header = TRUE,
+  skip = 50
+)
 
 ############### DRG Calculation #############################
 DRG_24BPF <-as.numeric(nrow(df_24BPF))
+
+DRG_24BPF_TDR <-as.numeric(nrow(df_24BPF_TDR))
+
 
 ############### Top Dose and Lose Dose Calculation ########################
 setwd("C:/Users/KumarA/Downloads/Gene_count_matrices/Gene_count_matrices")
@@ -40,6 +53,16 @@ dose_D_24BPF <- read.delim(
 
 low_dose_24BPF <- min(dose_D_24BPF[1, ][dose_D_24BPF[1, ] != 0], na.rm = TRUE)
 high_dose_24BPF <-max(as.numeric(dose_D_24BPF[1, ]), na.rm = TRUE)
+
+setwd("C:/Users/KumarA/Downloads/Gene_count_matrices/Gene_count_matrices/Top_Dose_removed")
+
+dose_D_24BPF_TDR <- read.delim(
+  "24BPF_bmdexpress_input_log2_transformed_top_dose_removed.txt",
+  sep = "\t",
+  header = TRUE)
+
+low_dose_24BPF_TDR <- min(dose_D_24BPF_TDR[1, ][dose_D_24BPF_TDR[1, ] != 0], na.rm = TRUE)
+high_dose_24BPF_TDR <-max(as.numeric(dose_D_24BPF_TDR[1, ]), na.rm = TRUE)
 
 setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic")
 
@@ -83,6 +106,13 @@ bmc_24BPF <- as.list(df_24BPF$`Best.BMD`)
 bmc_v_24BPF <- unlist(bmc_24BPF)
 probe_24BPF <-as.list(df_24BPF$`Probe.ID`)
 probe_v_24BPF <- unlist(probe_24BPF)
+
+#TDR
+bmc_24BPF_TDR <- as.list(df_24BPF_TDR$`Best.BMD`)
+bmc_v_24BPF_TDR <- unlist(bmc_24BPF_TDR)
+probe_24BPF_TDR <-as.list(df_24BPF_TDR$`Probe.ID`)
+probe_v_24BPF_TDR <- unlist(probe_24BPF_TDR)
+
 
 LCRD2_24BPF_Tpod_table_non_boot_strap <- LCRD.2(bmc_v_24BPF,probe_v_24BPF)
 LCRD2_24BPF_Tpod_non_boot_strap <- as.numeric(LCRD.2(bmc_v_24BPF,probe_v_24BPF)[2])
@@ -205,14 +235,16 @@ table(boot_lcrd)
 length(unique(boot_lcrd))
 
 lcrd_bootstrap(df_24BPF, seed = 1, repeats = 1, lcrdratiocut = 1.778, lcrdlogbase = 10)
-library(dplyr)
-chemname <- "24BPF"
-
 LCRD_24BPF_Tpod_table<- lcrd_bootstrap(df_24BPF, seed = 1, repeats = 2000, lcrdratiocut = 1.778, lcrdlogbase = 10)
 LCRD2_24BPF_Tpod_median <-10^(as.numeric(LCRD_24BPF_Tpod_table[2]))
 LCRD2_24BPF_Tpod_lower<-10^(as.numeric(LCRD_24BPF_Tpod_table[1]))
 LCRD2_24BPF_Tpod_upper<-10^(as.numeric(LCRD_24BPF_Tpod_table[3]))
 
+#TDR LCRD
+LCRD_24BPF_TDR_Tpod_table<- lcrd_bootstrap(df_24BPF_TDR, seed = 1, repeats = 2000, lcrdratiocut = 1.778, lcrdlogbase = 10)
+LCRD2_24BPF_TDR_Tpod_median <-10^(as.numeric(LCRD_24BPF_TDR_Tpod_table[2]))
+LCRD2_24BPF_TDR_Tpod_lower<-10^(as.numeric(LCRD_24BPF_TDR_Tpod_table[1]))
+LCRD2_24BPF_TDR_Tpod_upper<-10^(as.numeric(LCRD_24BPF_TDR_Tpod_table[3]))
 
 # ============================================================================
 # Function: First mode (non-bootstrap)
@@ -441,14 +473,15 @@ mode_bootstrap <- function(x, seed = 1, repeats = 2000) {
 
 
 First_mode_24BPF_table <-mode_bootstrap(bmc_v_24BPF, seed = 1, repeats = 2000)
-
-
-#mode_bootstrap(bmc_v_24BPF, seed = 1, repeats = 2000, min_size = 0.06, min_bw = 0.01)
-#First_mode_24BPF_table <-mode_bootstrap(bmc_v_24BPF, seed = 1, repeats = 2000, min_size = 0.06, min_bw = 0.15)
 First_mode_24BPF_Tpod_median <- as.numeric(First_mode_24BPF_table[2])
 First_mode_24BPF_Tpod_lower <-  as.numeric(First_mode_24BPF_table[1])
 First_mode_24BPF_Tpod_upper <-  as.numeric(First_mode_24BPF_table[3])
 
+#TDR First mode
+First_mode_24BPF_TDR_table <-mode_bootstrap(bmc_v_24BPF_TDR, seed = 1, repeats = 2000)
+First_mode_24BPF_TDR_Tpod_median <- as.numeric(First_mode_24BPF_TDR_table[2])
+First_mode_24BPF_TDR_Tpod_lower <-  as.numeric(First_mode_24BPF_TDR_table[1])
+First_mode_24BPF_TDR_Tpod_upper <-  as.numeric(First_mode_24BPF_TDR_table[3])
 
 # ============================================================================
 # Function: 20th Gene (bootstrap)
@@ -470,11 +503,16 @@ twenty_gene_24BPF_Tpod_median <- as.numeric(twenty_gene_24BPF_table[2])
 twentieth_gene_lower_bound_24BPF = as.numeric(twenty_gene_24BPF_table[1])
 twentieth_gene_upper_bound_24BPF = as.numeric(twenty_gene_24BPF_table[3])
 
+#TDR 20th Gene
+nth_gene_bootstrap(bmc_v_24BPF_TDR, seed = 1, nth_gene = 20, repeats = 2000)
+twenty_gene_24BPF_TDR_table <- nth_gene_bootstrap(bmc_v_24BPF_TDR, seed = 1, nth_gene = 20, repeats = 2000)
+twenty_gene_24BPF_TDR_Tpod_median <- as.numeric(twenty_gene_24BPF_TDR_table[2])
+twentieth_gene_lower_bound_24BPF_TDR = as.numeric(twenty_gene_24BPF_TDR_table[1])
+twentieth_gene_upper_bound_24BPF_TDR = as.numeric(twenty_gene_24BPF_TDR_table[3])
+
 # ============================================================================
 # Function: 10th Percentile (bootstrap)
 # ============================================================================
-
-
 
 nth_percent_bootstrap <- function(x, seed = 1, nth_percent = 10, repeats = 2000) {
   set.seed(seed)
@@ -491,6 +529,14 @@ tenth_percentile_24BPF_Tpod_median <- as.numeric(tenth_percentile_24BPF_table[2]
 
 tenth_percentile_lower_bound_24BPF = as.numeric(tenth_percentile_24BPF_table[1])
 tenth_percentile_upper_bound_24BPF = as.numeric(tenth_percentile_24BPF_table[3])
+
+#TDR 10th percentile
+nth_percent_bootstrap (bmc_v_24BPF_TDR, seed = 1, nth_percent = 10, repeats = 2000)
+tenth_percentile_24BPF_TDR_table <- nth_percent_bootstrap (bmc_v_24BPF_TDR, seed = 1, nth_percent = 10, repeats = 2000)
+tenth_percentile_24BPF_TDR_Tpod_median <- as.numeric(tenth_percentile_24BPF_TDR_table[2])
+
+tenth_percentile_lower_bound_24BPF_TDR = as.numeric(tenth_percentile_24BPF_TDR_table[1])
+tenth_percentile_upper_bound_24BPF_TDR = as.numeric(tenth_percentile_24BPF_TDR_table[3])
 
 # ============================================================================
 #Defined category Analysis Tpod (lowest median BMD)
@@ -545,12 +591,39 @@ D_24BPF_Cat_tpod_median <-as.numeric(D_24BPF_Def_Cat_tpod_table[2])
 D_24BPF_Cat_tpod_lower <-as.numeric(D_24BPF_Def_Cat_tpod_table[1])
 D_24BPF_Cat_tpod_upper <-as.numeric(D_24BPF_Def_Cat_tpod_table[3])
 
+#TDR Defind cat
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Defined Category analysis/top_dose_removed")
 
+df_D_24BPF_TDR_defCAT <- read.delim(
+  "24BPF_bmdexpress_input_log2_transformed_top_dose_removed_williams_0.05_NOMTC_foldfilter1.5_BMD_null_DEFINED-CatMapFile.txt",
+  sep = "\t",
+  header = TRUE,
+  skip = 79
+)
+
+D_24BPF_TDR_Cat_tpod_min <- min(df_D_24BPF_TDR_defCAT$BMD.Median, na.rm = TRUE)
+
+D_24BPF_TDR_Cat_tpod_path_name <- df_D_24BPF_TDR_defCAT$GO.Pathway.Gene.Set.Gene.Name[df_D_24BPF_TDR_defCAT$BMD.Median == D_24BPF_TDR_Cat_tpod_min]
+
+D_24BPF_TDR_Cat_tpod_list_bootstrap <- df_D_24BPF_TDR_defCAT$BMD.List[df_D_24BPF_TDR_defCAT$BMD.Median == D_24BPF_TDR_Cat_tpod_min]
+
+D_24BPF_TDR_Cat_tpod_list_bootstrap_num <- as.numeric(strsplit(D_24BPF_TDR_Cat_tpod_list_bootstrap, ";")[[1]])
+
+
+D_24BPF_TDR_Def_Cat_tpod_table <- pathway_bootstrap(D_24BPF_TDR_Cat_tpod_list_bootstrap_num, seed = 1, repeats = 2000)
+D_24BPF_TDR_Cat_tpod_median <-as.numeric(D_24BPF_TDR_Def_Cat_tpod_table[2])
+D_24BPF_TDR_Cat_tpod_lower <-as.numeric(D_24BPF_TDR_Def_Cat_tpod_table[1])
+D_24BPF_TDR_Cat_tpod_upper <-as.numeric(D_24BPF_TDR_Def_Cat_tpod_table[3])
 ###############################################################################
 #LC50 values:
 LC50_24BPF_median <- 122
 LC50_24BPF_Lower <- 0
 LC50_24BPF_upper <- 0
+
+#TDR LC50
+LC50_24BPF_TDR_median <- 122
+LC50_24BPF_TDR_Lower <- 0
+LC50_24BPF_TDR_upper <- 0
 ##########################################################################
 #Table
 D_24BPF_table_full <- data.frame(
@@ -610,74 +683,81 @@ setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Plot
 
 write.csv(D_24BPF_table_full, "24BPF_table_full.csv", row.names = FALSE)
 
-##########################################################################
-#plot
+
+#TDR table 
+D_24BPF_TDR_table_full <- data.frame(
+  Chemical = c("24BPF_TDR", "", "", "", "", ""),
+  
+  Endpoints = c(
+    "LCRD",
+    "First mode",
+    paste0("Category (", D_24BPF_TDR_Cat_tpod_path_name, ")"),
+    "20th gene",
+    "10th percentile",
+    "LC50"
+  ),
+  
+  Lower = c(
+    LCRD2_24BPF_TDR_Tpod_lower,
+    First_mode_24BPF_TDR_Tpod_lower,
+    D_24BPF_TDR_Cat_tpod_lower,
+    twentieth_gene_lower_bound_24BPF_TDR,
+    tenth_percentile_lower_bound_24BPF_TDR,
+    LC50_24BPF_TDR_Lower
+  ),
+  
+  Median = c(
+    LCRD2_24BPF_TDR_Tpod_median,
+    First_mode_24BPF_TDR_Tpod_median,
+    D_24BPF_TDR_Cat_tpod_median,
+    twenty_gene_24BPF_TDR_Tpod_median,
+    tenth_percentile_24BPF_TDR_Tpod_median,
+    LC50_24BPF_TDR_median
+  ),
+  
+  Upper = c(
+    LCRD2_24BPF_TDR_Tpod_upper,
+    First_mode_24BPF_TDR_Tpod_upper,
+    D_24BPF_TDR_Cat_tpod_upper,
+    twentieth_gene_upper_bound_24BPF_TDR,
+    tenth_percentile_upper_bound_24BPF_TDR,
+    LC50_24BPF_TDR_upper
+  ),
+  
+  Range = c(
+    LCRD2_24BPF_TDR_Tpod_upper - LCRD2_24BPF_TDR_Tpod_lower,
+    First_mode_24BPF_TDR_Tpod_upper - First_mode_24BPF_TDR_Tpod_lower,
+    D_24BPF_TDR_Cat_tpod_upper - D_24BPF_TDR_Cat_tpod_lower,
+    twentieth_gene_upper_bound_24BPF_TDR - twentieth_gene_lower_bound_24BPF_TDR,
+    tenth_percentile_upper_bound_24BPF_TDR - tenth_percentile_lower_bound_24BPF_TDR,
+    LC50_24BPF_TDR_upper - LC50_24BPF_TDR_Lower
+  ),
+  
+  `DRG (Dose Responsive Genes)` = c(DRG_24BPF_TDR, "", "", "", "", ""),
+  Top_Dose = c(high_dose_24BPF_TDR, "", "", "", "", ""),
+  Low_Dose = c(low_dose_24BPF_TDR, "", "", "", "", ""))
+
+#Full table merged
 library(dplyr)
-library(ggplot2)
 
-# Calculate the 10th percentile
-p10 <- quantile(df_24BPF$Best.BMD, 0.10, na.rm = TRUE)
+empty_row <- as.data.frame(
+  matrix(" ", nrow = 1, ncol = ncol(D_24BPF_table_full))
+)
 
-# Density plot with percentile marker
-ggplot(df_24BPF, aes(x = Best.BMD)) +
-  geom_density(fill = "lightblue", alpha = 0.4) +
-  geom_vline(xintercept = p10,
-             linetype = "dashed",
-             color = "red") +
-  annotate("text",
-           x = p10,
-           y = 0.02,
-           label = "10th percentile",
-           hjust = -0.1) +
-  labs(x = "Best.BMD",
-       y = "Density")
+merged_24BPF_FULL_Table_1 <- bind_rows(
+  D_24BPF_table_full,
+  empty_row,
+  D_24BPF_TDR_table_full
+)
+
+merged_24BPF_FULL_Table <- merged_24BPF_FULL_Table_1[,1:9]
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Plots")
+
+write.csv(merged_24BPF_FULL_Table, "24BPF_table_full_TDR_merged.csv", row.names = FALSE)
 
 
-
-df <- df_24BPF %>%
-  mutate(logBestBMD = log10(Best.BMD))
-
-ggplot(df, aes(x = logBestBMD)) +
-  geom_density() +
-  labs(x = "log10(Best.BMD)")
-
-
-
-
-
-
-#tpod variables: LCRD2_24BPF_Tpod, LCRD2_24BPF_Tpod, twenty_gene_24BPF_Tpod, tenth_perecentile_24BPF_Tpod, 24BPF_Cat_tpod
-
-df <- df_24BPF %>%
-  mutate(logBestBMD = log10(Best.BMD))
-
-ggplot(df, aes(x = logBestBMD)) +
-  geom_density(fill = "lightblue", alpha = 0.4) +
-  
-  geom_vline(xintercept = log10(p10),
-             linetype = "dashed",
-             color = "red") +
-  
-  geom_vline(xintercept = log10(LCRD2_24BPF_Tpod_median),
-             linetype = "dashed",
-             color = "blue") +
-  
-  geom_vline(xintercept = log10(First_mode_24BPF_Tpod_median),
-             linetype = "dashed",
-             color = "green") +
-  
-  geom_vline(xintercept = log10(twenty_gene_24BPF_Tpod_median),
-             linetype = "dashed",
-             color = "purple") +
-  
-  geom_vline(xintercept = log10(D_24BPF_Cat_tpod_median),
-             linetype = "dashed",
-             color = "pink") +
-  
-  labs(x = "log10(Best.BMD)",
-       y = "Density")
-
-######################################################
+##########################################################################
 #Density plot generation
 
 library(dplyr)
@@ -689,19 +769,23 @@ df <- df_24BPF %>%
 # Dataframe for TPoD lines
 tpod_df <- data.frame(
   value = log10(c(
-    p10,
-    LCRD2_24BPF_Tpod_median,
-    First_mode_24BPF_Tpod_median,
+    as.numeric(p10),
+    as.numeric(LCRD2_24BPF_Tpod_median),
+    as.numeric(First_mode_24BPF_Tpod_median),
     twenty_gene_24BPF_Tpod_median,
-    D_24BPF_Cat_tpod_median
+    D_24BPF_Cat_tpod_median,
+    as.numeric(high_dose_24BPF),
+    as.numeric(low_dose_24BPF)
   )),
   
   label = c(
-    paste0("10th Percentile = ", round(p10, 3)),
-    paste0("LCRD = ", round((LCRD2_24BPF_Tpod_median), 3)),
-    paste0("First Mode = ", round((First_mode_24BPF_Tpod_median), 3)),
-    paste0("20th Gene = ", round((twenty_gene_24BPF_Tpod_median), 3)),
-    paste0("Category = ", round((D_24BPF_Cat_tpod_median), 3))
+    paste0("10th Percentile = ", round(as.numeric(p10), 3)),
+    paste0("LCRD = ", round(LCRD2_24BPF_Tpod_median, 3)),
+    paste0("First Mode = ", round(First_mode_24BPF_Tpod_median, 3)),
+    paste0("20th Gene = ", round(twenty_gene_24BPF_Tpod_median, 3)),
+    paste0("Category = ", round(D_24BPF_Cat_tpod_median, 3)),
+    paste0("Top dose = ", as.numeric(high_dose_24BPF)),
+    paste0("Low dose = ", as.numeric(low_dose_24BPF))
   )
 )
 
@@ -718,7 +802,7 @@ ggplot(df, aes(x = logBestBMD)) +
   
   geom_text(data = tpod_df,
             aes(x = value + 0.05,
-                y = c(0.02, 0.04, 0.06, 0.08, 0.10),
+                y = c(0.02, 0.04, 0.06, 0.08, 0.10, 0.12, 0.14),
                 label = round(value, 3),
                 color = label),
             angle = 90,
@@ -735,4 +819,72 @@ ggplot(df, aes(x = logBestBMD)) +
          "   |    Low Dose = ", low_dose_24BPF
        )
   )
+###############################################################################
+
+#TDR Plot
+
+###############################################################################
+#Density plot generation
+
+library(dplyr)
+library(ggplot2)
+
+df <- df_24BPF_TDR %>%
+  mutate(logBestBMD = log10(Best.BMD))
+
+# Dataframe for TPoD lines
+tpod_df <- data.frame(
+  value = log10(c(
+    p10,
+    LCRD2_24BPF_TDR_Tpod_median,
+    First_mode_24BPF_TDR_Tpod_median,
+    twenty_gene_24BPF_TDR_Tpod_median,
+    D_24BPF_TDR_Cat_tpod_median,
+    as.numeric(high_dose_24BPF_TDR),
+    as.numeric(low_dose_24BPF_TDR)
+  )),
+  
+  label = c(
+    paste0("10th Percentile = ", round(p10, 3)),
+    paste0("LCRD = ", round((LCRD2_24BPF_TDR_Tpod_median), 3)),
+    paste0("First Mode = ", round((First_mode_24BPF_TDR_Tpod_median), 3)),
+    paste0("20th Gene = ", round((twenty_gene_24BPF_TDR_Tpod_median), 3)),
+    paste0("Category = ", round((D_24BPF_TDR_Cat_tpod_median), 3)),
+    paste0("Top dose = ", as.numeric(high_dose_24BPF_TDR)),
+    paste0("Low dose = ", as.numeric(low_dose_24BPF_TDR))
+  )
+)
+
+
+ggplot(df, aes(x = logBestBMD)) +
+  
+  geom_density(fill = "lightblue", alpha = 0.4) +
+  
+  geom_vline(data = tpod_df,
+             aes(xintercept = value,
+                 color = label),
+             linetype = "dashed",
+             linewidth = 1) +
+  
+  geom_text(data = tpod_df,
+            aes(x = value + 0.05,
+                y = c(0.02, 0.04, 0.06, 0.08, 0.10,0.12,0.14),
+                label = round(value, 3),
+                color = label),
+            angle = 90,
+            hjust = 0,
+            show.legend = FALSE) +
+  
+  labs(x = "log10(Best.BMD)",
+       y = "Density",
+       color = "TPoD Methods",
+       title = "                                            Distribution of Best BMD Values for 24BPF_TDR",  
+       subtitle = paste0(
+         "                                                  DRG = ", round(DRG_24BPF_TDR, 3),
+         "   |    Top Dose = ", high_dose_24BPF_TDR,
+         "   |    Low Dose = ", low_dose_24BPF_TDR
+       )
+  )
+
+
 

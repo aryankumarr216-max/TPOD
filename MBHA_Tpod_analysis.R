@@ -27,9 +27,22 @@ df_MBHA <- read.delim(
   skip = 56
 )
 
+
+#TDR = top dose removed
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/top_dose_removed_BDA")
+
+df_MBHA_TDR <- read.delim(
+  "MBHA_bmdexpress_input_log2_transformed_top_dose_removed_williams_0.05_NOMTC_foldfilter1.5_BMD_1_filtered.txt",
+  sep = "\t",
+  header = TRUE,
+  skip = 59
+)
+
 ############### DRG Calculation #############################
 DRG_MBHA <-as.numeric(nrow(df_MBHA))
 
+DRG_MBHA_TDR <-as.numeric(nrow(df_MBHA_TDR))
 ############### Top Dose and Lose Dose Calculation ########################
 
 setwd("C:/Users/KumarA/Downloads/Gene_count_matrices/Gene_count_matrices")
@@ -41,6 +54,20 @@ dose_MBHA <- read.delim(
 
 low_dose_MBHA <- min(dose_MBHA[1, ][dose_MBHA[1, ] != 0], na.rm = TRUE)
 high_dose_MBHA <-max(as.numeric(dose_MBHA[1, ]), na.rm = TRUE)
+
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic")
+
+
+#TDR
+setwd("C:/Users/KumarA/Downloads/Gene_count_matrices/Gene_count_matrices/Top_Dose_removed")
+
+dose_D_MBHA_TDR <- read.delim(
+  "MBHA_bmdexpress_input_log2_transformed_top_dose_removed.txt",
+  sep = "\t",
+  header = TRUE)
+
+low_dose_MBHA_TDR <- min(dose_D_MBHA_TDR[1, ][dose_D_MBHA_TDR[1, ] != 0], na.rm = TRUE)
+high_dose_MBHA_TDR <-max(as.numeric(dose_D_MBHA_TDR[1, ]), na.rm = TRUE)
 
 setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic")
 
@@ -79,11 +106,17 @@ LCRD.2 <- function(bmc, probe, cut = 1.66) {
 }
 
 
-
+#Extracting Relevant Information from BMDS file
 bmc_MBHA <- as.list(df_MBHA$`Best.BMD`)
 bmc_v_MBHA <- unlist(bmc_MBHA)
 probe_MBHA <-as.list(df_MBHA$`Probe.ID`)
 probe_v_MBHA <- unlist(probe_MBHA)
+
+#TDR -Extracting Relevant Information from BMDS file
+bmc_MBHA_TDR <- as.list(df_MBHA_TDR$`Best.BMD`)
+bmc_v_MBHA_TDR <- unlist(bmc_MBHA_TDR)
+probe_MBHA_TDR <-as.list(df_MBHA_TDR$`Probe.ID`)
+probe_v_MBHA_TDR <- unlist(probe_MBHA_TDR)
 
 LCRD2_MBHA_Tpod_table <- LCRD.2(bmc_v_MBHA,probe_v_MBHA)
 LCRD2_MBHA_Tpod <- as.numeric(LCRD.2(bmc_v_MBHA,probe_v_MBHA)[2])
@@ -212,6 +245,11 @@ LCRD2_MBHA_Tpod_median <-10^(as.numeric(LCRD_MBHA_Tpod_table[2]))
 LCRD2_MBHA_Tpod_lower<-10^(as.numeric(LCRD_MBHA_Tpod_table[1]))
 LCRD2_MBHA_Tpod_upper<-10^(as.numeric(LCRD_MBHA_Tpod_table[3]))
 
+#TDR LCRD
+LCRD_MBHA_TDR_Tpod_table<- lcrd_bootstrap(df_MBHA_TDR, seed = 1, repeats = 2000, lcrdratiocut = 1.778, lcrdlogbase = 10)
+LCRD2_MBHA_TDR_Tpod_median <-10^(as.numeric(LCRD_MBHA_TDR_Tpod_table[2]))
+LCRD2_MBHA_TDR_Tpod_lower<-10^(as.numeric(LCRD_MBHA_TDR_Tpod_table[1]))
+LCRD2_MBHA_TDR_Tpod_upper<-10^(as.numeric(LCRD_MBHA_TDR_Tpod_table[3]))
 
 
 
@@ -449,6 +487,12 @@ First_mode_MBHA_Tpod_median <- as.numeric(First_mode_MBHA_table[2])
 First_mode_MBHA_Tpod_lower <-  as.numeric(First_mode_MBHA_table[1])
 First_mode_MBHA_Tpod_upper <-  as.numeric(First_mode_MBHA_table[3])
 
+#TDR First mode
+First_mode_MBHA_TDR_table <-mode_bootstrap(bmc_v_MBHA_TDR, seed = 1, repeats = 2000)
+First_mode_MBHA_TDR_Tpod_median <- as.numeric(First_mode_MBHA_TDR_table[2])
+First_mode_MBHA_TDR_Tpod_lower <-  as.numeric(First_mode_MBHA_TDR_table[1])
+First_mode_MBHA_TDR_Tpod_upper <-  as.numeric(First_mode_MBHA_TDR_table[3])
+
 
 # ============================================================================
 # Function: 20th Gene (bootstrap)
@@ -470,11 +514,19 @@ twenty_gene_MBHA_table <- nth_gene_bootstrap(bmc_v_MBHA, seed = 1, nth_gene = 20
 twenty_gene_MBHA_Tpod_median <- as.numeric(twenty_gene_MBHA_table[2])
 twentieth_gene_lower_bound_MBHA = as.numeric(twenty_gene_MBHA_table[1])
 twentieth_gene_upper_bound_MBHA = as.numeric(twenty_gene_MBHA_table[3])
+
+
+#TDR 20th Gene
+nth_gene_bootstrap(bmc_v_MBHA_TDR, seed = 1, nth_gene = 20, repeats = 2000)
+twenty_gene_MBHA_TDR_table <- nth_gene_bootstrap(bmc_v_MBHA_TDR, seed = 1, nth_gene = 20, repeats = 2000)
+twenty_gene_MBHA_TDR_Tpod_median <- as.numeric(twenty_gene_MBHA_TDR_table[2])
+twentieth_gene_lower_bound_MBHA_TDR = as.numeric(twenty_gene_MBHA_TDR_table[1])
+twentieth_gene_upper_bound_MBHA_TDR = as.numeric(twenty_gene_MBHA_TDR_table[3])
+
+
 # ============================================================================
 # Function: 10th Percentile (bootstrap)
 # ============================================================================
-
-
 
 nth_percent_bootstrap <- function(x, seed = 1, nth_percent = 10, repeats = 2000) {
   set.seed(seed)
@@ -491,10 +543,18 @@ tenth_percentile_MBHA_Tpod_median <- as.numeric(tenth_percentile_MBHA_table[2])
 
 tenth_percentile_lower_bound_MBHA = as.numeric(tenth_percentile_MBHA_table[1])
 tenth_percentile_upper_bound_MBHA = as.numeric(tenth_percentile_MBHA_table[3])
+
+#TDR 10th percentile
+nth_percent_bootstrap (bmc_v_MBHA_TDR, seed = 1, nth_percent = 10, repeats = 2000)
+tenth_percentile_MBHA_TDR_table <- nth_percent_bootstrap (bmc_v_MBHA_TDR, seed = 1, nth_percent = 10, repeats = 2000)
+tenth_percentile_MBHA_TDR_Tpod_median <- as.numeric(tenth_percentile_MBHA_TDR_table[2])
+
+tenth_percentile_lower_bound_MBHA_TDR = as.numeric(tenth_percentile_MBHA_TDR_table[1])
+tenth_percentile_upper_bound_MBHA_TDR = as.numeric(tenth_percentile_MBHA_TDR_table[3])
+
 # ============================================================================
 #Defined category Analysis Tpod (lowest median BMD)
 # ============================================================================
-
 
 setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Defined Category analysis")
 
@@ -543,11 +603,43 @@ MBHA_Def_Cat_tpod_table <- pathway_bootstrap(MBHA_Cat_tpod_list_bootstrap_num, s
 MBHA_Cat_tpod_median <-as.numeric(MBHA_Def_Cat_tpod_table[2])
 MBHA_Cat_tpod_lower <-as.numeric(MBHA_Def_Cat_tpod_table[1])
 MBHA_Cat_tpod_upper <-as.numeric(MBHA_Def_Cat_tpod_table[3])
+
+
+#TDR Defind cat
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Defined Category analysis/top_dose_removed")
+list.files()
+df_D_MBHA_TDR_defCAT <- read.delim(
+  "MBHA_bmdexpress_input_log2_transformed_top_dose_removed_filtered.txt",
+  sep = "\t",
+  header = TRUE,
+  skip = 82
+)
+
+D_MBHA_TDR_Cat_tpod_min <- min(df_D_MBHA_TDR_defCAT$BMD.Median, na.rm = TRUE)
+
+D_MBHA_TDR_Cat_tpod_path_name <- df_D_MBHA_TDR_defCAT$GO.Pathway.Gene.Set.Gene.Name[df_D_MBHA_TDR_defCAT$BMD.Median == D_MBHA_TDR_Cat_tpod_min]
+
+D_MBHA_TDR_Cat_tpod_list_bootstrap <- df_D_MBHA_TDR_defCAT$BMD.List[df_D_MBHA_TDR_defCAT$BMD.Median == D_MBHA_TDR_Cat_tpod_min]
+
+D_MBHA_TDR_Cat_tpod_list_bootstrap_num <- as.numeric(strsplit(D_MBHA_TDR_Cat_tpod_list_bootstrap, ";")[[1]])
+
+
+D_MBHA_TDR_Def_Cat_tpod_table <- pathway_bootstrap(D_MBHA_TDR_Cat_tpod_list_bootstrap_num, seed = 1, repeats = 2000)
+D_MBHA_TDR_Cat_tpod_median <-as.numeric(D_MBHA_TDR_Def_Cat_tpod_table[2])
+D_MBHA_TDR_Cat_tpod_lower <-as.numeric(D_MBHA_TDR_Def_Cat_tpod_table[1])
+D_MBHA_TDR_Cat_tpod_upper <-as.numeric(D_MBHA_TDR_Def_Cat_tpod_table[3])
+
+
+
 ###############################################################################
 #LC50 values:
 LC50_MBHA_Lower <- 0
 LC50_MBHA_median <- 0
 LC50_MBHA_upper  <- 0
+
+LC50_MBHA_TDR_Lower <- 0
+LC50_MBHA_TDR_median <- 0
+LC50_MBHA_TDR_upper  <- 0
 
 ##########################################################################
 #Table
@@ -609,77 +701,78 @@ setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Plot
 write.csv(MBHA_table_full, "MBHA_table_full.csv", row.names = FALSE)
 
 
-############################################################################
 
-#plot
+#TDR table 
+D_MBHA_TDR_table_full <- data.frame(
+  Chemical = c("MBHA_TDR", "", "", "", "", ""),
+  
+  Endpoints = c(
+    "LCRD",
+    "First mode",
+    paste0("Category (", D_MBHA_TDR_Cat_tpod_path_name, ")"),
+    "20th gene",
+    "10th percentile",
+    "LC50"
+  ),
+  
+  Lower = c(
+    LCRD2_MBHA_TDR_Tpod_lower,
+    First_mode_MBHA_TDR_Tpod_lower,
+    D_MBHA_TDR_Cat_tpod_lower,
+    twentieth_gene_lower_bound_MBHA_TDR,
+    tenth_percentile_lower_bound_MBHA_TDR,
+    LC50_MBHA_TDR_Lower
+  ),
+  
+  Median = c(
+    LCRD2_MBHA_TDR_Tpod_median,
+    First_mode_MBHA_TDR_Tpod_median,
+    D_MBHA_TDR_Cat_tpod_median,
+    twenty_gene_MBHA_TDR_Tpod_median,
+    tenth_percentile_MBHA_TDR_Tpod_median,
+    LC50_MBHA_TDR_median
+  ),
+  
+  Upper = c(
+    LCRD2_MBHA_TDR_Tpod_upper,
+    First_mode_MBHA_TDR_Tpod_upper,
+    D_MBHA_TDR_Cat_tpod_upper,
+    twentieth_gene_upper_bound_MBHA_TDR,
+    tenth_percentile_upper_bound_MBHA_TDR,
+    LC50_MBHA_TDR_upper
+  ),
+  
+  Range = c(
+    LCRD2_MBHA_TDR_Tpod_upper - LCRD2_MBHA_TDR_Tpod_lower,
+    First_mode_MBHA_TDR_Tpod_upper - First_mode_MBHA_TDR_Tpod_lower,
+    D_MBHA_TDR_Cat_tpod_upper - D_MBHA_TDR_Cat_tpod_lower,
+    twentieth_gene_upper_bound_MBHA_TDR - twentieth_gene_lower_bound_MBHA_TDR,
+    tenth_percentile_upper_bound_MBHA_TDR - tenth_percentile_lower_bound_MBHA_TDR,
+    LC50_MBHA_TDR_upper - LC50_MBHA_TDR_Lower
+  ),
+  
+  `DRG (Dose Responsive Genes)` = c(DRG_MBHA_TDR, "", "", "", "", ""),
+  Top_Dose = c(high_dose_MBHA_TDR, "", "", "", "", ""),
+  Low_Dose = c(low_dose_MBHA_TDR, "", "", "", "", ""))
 
-#graph 
-#plot
-
+#Full table merged
 library(dplyr)
-library(ggplot2)
 
-# Calculate the 10th percentile
-p10 <- quantile(df_MBHA$Best.BMD, 0.10, na.rm = TRUE)
+empty_row <- as.data.frame(
+  matrix(" ", nrow = 1, ncol = ncol(MBHA_table_full))
+)
 
-# Density plot with percentile marker
-ggplot(df_MBHA, aes(x = Best.BMD)) +
-  geom_density(fill = "lightblue", alpha = 0.4) +
-  geom_vline(xintercept = p10,
-             linetype = "dashed",
-             color = "red") +
-  annotate("text",
-           x = p10,
-           y = 0.02,
-           label = "10th percentile",
-           hjust = -0.1) +
-  labs(x = "Best.BMD",
-       y = "Density")
+merged_MBHA_FULL_Table_1 <- bind_rows(
+  MBHA_table_full,
+  empty_row,
+  D_MBHA_TDR_table_full
+)
 
+merged_MBHA_FULL_Table <- merged_MBHA_FULL_Table_1[,1:9]
 
+setwd("C:/Users/KumarA/Downloads/R_Stuff/Actual Analysis/FINAL_tpod/Generic/Plots")
 
-df <- df_MBHA %>%
-  mutate(logBestBMD = log10(Best.BMD))
-
-ggplot(df, aes(x = logBestBMD)) +
-  geom_density() +
-  labs(x = "log10(Best.BMD)")
-
-
-
-
-
-
-#tpod variables: LCRD2_MBHA_Tpod, LCRD2_MBHA_Tpod, twenty_gene_MBHA_Tpod, tenth_perecentile_MBHA_Tpod, MBHA_Cat_tpod
-
-df <- df_MBHA %>%
-  mutate(logBestBMD = log10(Best.BMD))
-
-ggplot(df, aes(x = logBestBMD)) +
-  geom_density(fill = "lightblue", alpha = 0.4) +
-  
-  geom_vline(xintercept = log10(p10),
-             linetype = "dashed",
-             color = "red") +
-  
-  geom_vline(xintercept = log10(LCRD2_MBHA_Tpod_median),
-             linetype = "dashed",
-             color = "blue") +
-  
-  geom_vline(xintercept = log10(First_mode_MBHA_Tpod_median),
-             linetype = "dashed",
-             color = "green") +
-  
-  geom_vline(xintercept = log10(twenty_gene_MBHA_Tpod_median),
-             linetype = "dashed",
-             color = "purple") +
-  
-  geom_vline(xintercept = log10(MBHA_Cat_tpod_median),
-             linetype = "dashed",
-             color = "pink") +
-  
-  labs(x = "log10(Best.BMD)",
-       y = "Density")
+write.csv(merged_MBHA_FULL_Table, "MBHA_table_full_TDR_merged.csv", row.names = FALSE)
 
 ######################################################
 #Density plot generation
@@ -697,7 +790,9 @@ tpod_df <- data.frame(
     LCRD2_MBHA_Tpod_median,
     First_mode_MBHA_Tpod_median,
     twenty_gene_MBHA_Tpod_median,
-    MBHA_Cat_tpod_median
+    MBHA_Cat_tpod_median,
+    as.numeric(high_dose_MBHA),
+    as.numeric(low_dose_MBHA)
   )),
   
   label = c(
@@ -705,7 +800,9 @@ tpod_df <- data.frame(
     paste0("LCRD = ", round((LCRD2_MBHA_Tpod_median), 3)),
     paste0("First Mode = ", round((First_mode_MBHA_Tpod_median), 3)),
     paste0("20th Gene = ", round((twenty_gene_MBHA_Tpod_median), 3)),
-    paste0("Category = ", round((MBHA_Cat_tpod_median), 3))
+    paste0("Category = ", round((MBHA_Cat_tpod_median), 3)),
+    paste0("Top dose = ", as.numeric(high_dose_MBHA)),
+    paste0("Low dose = ", as.numeric(low_dose_MBHA))
   )
 )
 
@@ -722,7 +819,7 @@ ggplot(df, aes(x = logBestBMD)) +
   
   geom_text(data = tpod_df,
             aes(x = value + 0.05,
-                y = c(0.02, 0.04, 0.06, 0.08, 0.10),
+                y = c(0.02, 0.04, 0.06, 0.08, 0.10,0.12,0.14),
                 label = round(value, 3),
                 color = label),
             angle = 90,
@@ -739,4 +836,71 @@ ggplot(df, aes(x = logBestBMD)) +
          "   |    Low Dose = ", low_dose_MBHA
        )
   )
+######################################################
+
+#TDR Plot
+######################################################
+#Density plot generation
+
+library(dplyr)
+library(ggplot2)
+
+df <- df_MBHA_TDR %>%
+  mutate(logBestBMD = log10(Best.BMD))
+
+# Dataframe for TPoD lines
+tpod_df <- data.frame(
+  value = log10(c(
+    p10,
+    LCRD2_MBHA_TDR_Tpod_median,
+    First_mode_MBHA_TDR_Tpod_median,
+    twenty_gene_MBHA_TDR_Tpod_median,
+    D_MBHA_TDR_Cat_tpod_median,
+    as.numeric(high_dose_MBHA_TDR),
+    as.numeric(low_dose_MBHA_TDR)
+  )),
+  
+  label = c(
+    paste0("10th Percentile = ", round(p10, 3)),
+    paste0("LCRD = ", round((LCRD2_MBHA_TDR_Tpod_median), 3)),
+    paste0("First Mode = ", round((First_mode_MBHA_TDR_Tpod_median), 3)),
+    paste0("20th Gene = ", round((twenty_gene_MBHA_TDR_Tpod_median), 3)),
+    paste0("Category = ", round((D_MBHA_TDR_Cat_tpod_median), 3)),
+    paste0("Top dose = ", as.numeric(high_dose_MBHA_TDR)),
+    paste0("Low dose = ", as.numeric(low_dose_MBHA_TDR))
+  )
+)
+
+
+ggplot(df, aes(x = logBestBMD)) +
+  
+  geom_density(fill = "lightblue", alpha = 0.4) +
+  
+  geom_vline(data = tpod_df,
+             aes(xintercept = value,
+                 color = label),
+             linetype = "dashed",
+             linewidth = 1) +
+  
+  geom_text(data = tpod_df,
+            aes(x = value + 0.05,
+                y = c(0.02, 0.04, 0.06, 0.08, 0.10,0.12,0.14),
+                label = round(value, 3),
+                color = label),
+            angle = 90,
+            hjust = 0,
+            show.legend = FALSE) +
+  
+  labs(x = "log10(Best.BMD)",
+       y = "Density",
+       color = "TPoD Methods",
+       title = "                                            Distribution of Best BMD Values for MBHA_TDR",  
+       subtitle = paste0(
+         "                                                  DRG = ", round(DRG_MBHA_TDR, 3),
+         "   |    Top Dose = ", high_dose_MBHA_TDR,
+         "   |    Low Dose = ", low_dose_MBHA_TDR
+       )
+  )
+
+
 
