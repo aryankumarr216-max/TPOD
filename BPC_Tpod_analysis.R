@@ -911,4 +911,284 @@ ggplot(df, aes(x = logBestBMD)) +
          "   |    Low Dose = ", low_dose_BPC_TDR
        )
   )
+ 
+###############################################################################
+#Density plot generation - updated tpods - normilized 
+
+
+setwd("C:/Users/KumarA/OneDrive - EC-EC/Documents/Updated_version2_BMD_RUN_FILES/BPC_Updated_norm_version2!Count_files!median_ratio_BPC!full_data_0m")
+list.files()
+
+df_updated_all_topds_BPC <- read.delim(
+  "outliers_removed_lowcount_filtered_Iter_1_tpod.txt",
+)
+
+
+
+#first mdoe
+#updated_BPC_first_mode_lower_tpod <- min(df_updated_all_topds_BPC$first_mode, na.rm = TRUE)
+updated_BPC_first_mode_median_tpod <- df_updated_all_topds_BPC$first_mode
+#updated_BPC_first_mode_upper_tpod <- max(df_updated_all_topds_BPC$first_mode, na.rm = TRUE)
+
+# tenth_percentile
+#updated_BPC_tenth_percentile_lower_tpod <- min(df_updated_all_topds_BPC$tenth_percentile, na.rm = TRUE)
+updated_BPC_tenth_percentile_median_tpod <-df_updated_all_topds_BPC$tenth_percentile
+#updated_BPC_tenth_percentile_upper_tpod <- max(df_updated_all_topds_BPC$tenth_percentile, na.rm = TRUE)
+
+# twentieth_gene
+#updated_BPC_twentieth_gene_lower_tpod <- min(df_updated_all_topds_BPC$twentieth_gene, na.rm = TRUE)
+updated_BPC_twentieth_gene_median_tpod <- df_updated_all_topds_BPC$twentieth_gene
+#updated_BPC_twentieth_gene_upper_tpod <- max(df_updated_all_topds_BPC$twentieth_gene, na.rm = TRUE)
+
+# LCRD2
+#updated_BPC_LCRD2_lower_tpod <- min(df_updated_all_topds_BPC$lcrd2, na.rm = TRUE)
+updated_BPC_LCRD2_median_tpod <- df_updated_all_topds_BPC$lcrd2
+#updated_BPC_LCRD2_upper_tpod <- max(df_updated_all_topds_BPC$lcrd2, na.rm = TRUE)
+
+updated_drg_mean_BPC <- as.numeric(df_updated_all_topds_BPC$drgs)
+############### TDR #####################
+
+setwd("C:/Users/KumarA/OneDrive - EC-EC/Documents/Updated_version2_BMD_RUN_FILES/TDR/TDR_BPC_Updated_norm_version2!Count_files_TDR!Updated_version_2_BPA_Alt_median_ratio_BPC!full_data_4.8m")
+list.files()
+
+df_updated_all_topds_TDR_BPC <- read.delim(
+  "outliers_removed_lowcount_filtered_Iter_1_tpod.txt",
+)
+
+
+
+#first mdoe
+updated_TDR_BPC_first_mode_median_tpod <- df_updated_all_topds_TDR_BPC$first_mode
+
+# tenth_percentile
+updated_TDR_BPC_tenth_percentile_median_tpod <- df_updated_all_topds_TDR_BPC$tenth_percentile
+
+# twentieth_gene
+updated_TDR_BPC_twentieth_gene_median_tpod <- df_updated_all_topds_TDR_BPC$twentieth_gene
+
+# LCRD2
+updated_TDR_BPC_LCRD2_median_tpod <- df_updated_all_topds_TDR_BPC$lcrd2
+
+updated_TDR_drg_mean_BPC <- as.numeric(df_updated_all_topds_TDR_BPC$drgs)
+
+
+############### updated bmd file #####################
+
+
+df_BPC <- read.delim(
+  "outliers_removed_lowcount_filtered_Iter_1_Bmds_Analysis.txt",
+  sep = "\t",
+  header = TRUE,
+)
+
+############### TDR updated bmd file #####################
+
+setwd("C:/Users/KumarA/OneDrive - EC-EC/Documents/Updated_version2_BMD_RUN_FILES/TDR/TDR_BPC_Updated_norm_version2!Count_files_TDR!Updated_version_2_BPC_Alt_median_ratio_BPC!full_data_4.4m")
+
+df_TDR_BPC <- read.delim(
+  "outliers_removed_lowcount_filtered_Iter_1_Bmds_Analysis.txt",
+  sep = "\t",
+  header = TRUE,
+)
+
+
+
+###################################
+#normal data plot
+library(dplyr)
+library(ggplot2)
+
+D_BPC_Cat_tpod_median <- 0
+p10_BPC <- tenth_percentile_BPC_Tpod_median
+
+df <- df_BPC %>%
+  mutate(logBestBMD = log10(Best.BMD))
+
+# Dataframe for TPoD lines
+tpod_df <- data.frame(
+  value = log10(c(
+    as.numeric(updated_BPC_tenth_percentile_median_tpod),
+    as.numeric(updated_BPC_LCRD2_median_tpod),
+    as.numeric(updated_BPC_first_mode_median_tpod),
+    as.numeric(updated_BPC_twentieth_gene_median_tpod),
+    D_BPC_Cat_tpod_median,
+    as.numeric(high_dose_BPC),
+    as.numeric(low_dose_BPC)
+  )),
+  
+  label = c(
+    paste0("10th Percentile = ", round(updated_BPC_tenth_percentile_median_tpod, 3)),
+    paste0("LCRD = ", round(updated_BPC_LCRD2_median_tpod, 3)),
+    paste0("First Mode = ", round(updated_BPC_first_mode_median_tpod, 3)),
+    paste0("20th Gene = ", round(updated_BPC_twentieth_gene_median_tpod, 3)),
+    paste0("Category = ", round(D_BPC_Cat_tpod_median, 3)),
+    paste0("Top dose = ", as.numeric(high_dose_BPC)),
+    paste0("Low dose = ", as.numeric(low_dose_BPC))
+  )
+)
+
+# Histogram bin width
+bw <- 0.2
+
+ggplot(df, aes(x = logBestBMD)) +
+  
+  # Histogram (counts)
+  geom_histogram(
+    aes(y = after_stat(count)),
+    binwidth = bw,
+    fill = "lightblue",
+    color = "black",
+    alpha = 0.5
+  ) +
+  
+  # Density curve scaled to counts
+  geom_density(
+    aes(y = after_stat(density * nrow(df) * bw)),
+    color = "blue",
+    linewidth = 1.2
+  ) +
+  
+  # TPoD lines
+  geom_vline(
+    data = tpod_df,
+    aes(
+      xintercept = value,
+      color = label
+    ),
+    linetype = "dashed",
+    linewidth = 1
+  ) +
+  
+  # TPoD labels
+  geom_text(
+    data = tpod_df,
+    aes(
+      x = value + 0.03,
+      y = Inf,
+      label = round(value, 3),
+      color = label
+    ),
+    angle = 90,
+    vjust = 1.2,
+    show.legend = FALSE
+  ) +
+  
+  labs(
+    x = "log10(Best.BMD)",
+    y = "Count",
+    color = "TPoD Methods",
+    title = "Distribution of Best BMD Values for BPC",
+    subtitle = paste0(
+      "DRG = ", round(updated_drg_mean_BPC, 3),
+      " | Top Dose = ", high_dose_BPC,
+      " | Low Dose = ", low_dose_BPC
+    )
+  ) +
+  
+  theme_classic() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    legend.position = "right"
+  )
+
+####################################################
+#TDR Plot
+#normal data plot
+library(dplyr)
+library(ggplot2)
+
+D_TDR_BPC_Cat_tpod_median <- 0
+p10_TDR_BPC <- tenth_percentile_TDR_BPC_Tpod_median
+
+df <- df_TDR_BPC %>%
+  mutate(logBestBMD = log10(Best.BMD))
+
+# Dataframe for TPoD lines
+tpod_df <- data.frame(
+  value = log10(c(
+    as.numeric(updated_TDR_BPC_tenth_percentile_median_tpod),
+    as.numeric(updated_TDR_BPC_LCRD2_median_tpod),
+    as.numeric(updated_TDR_BPC_first_mode_median_tpod),
+    as.numeric(updated_TDR_BPC_twentieth_gene_median_tpod),
+    D_TDR_BPC_Cat_tpod_median,
+    as.numeric(high_dose_BPC_TDR),
+    as.numeric(low_dose_BPC_TDR)
+  )),
+  
+  label = c(
+    paste0("10th Percentile = ", round(updated_TDR_BPC_tenth_percentile_median_tpod, 3)),
+    paste0("LCRD = ", round(updated_TDR_BPC_LCRD2_median_tpod, 3)),
+    paste0("First Mode = ", round(updated_TDR_BPC_first_mode_median_tpod, 3)),
+    paste0("20th Gene = ", round(updated_TDR_BPC_twentieth_gene_median_tpod, 3)),
+    paste0("Category = ", round(D_TDR_BPC_Cat_tpod_median, 3)),
+    paste0("Top dose = ", as.numeric(high_dose_BPC_TDR)),
+    paste0("Low dose = ", as.numeric(low_dose_BPC_TDR))
+  )
+)
+
+# Histogram bin width
+bw <- 0.2
+
+ggplot(df, aes(x = logBestBMD)) +
+  
+  # Histogram (counts)
+  geom_histogram(
+    aes(y = after_stat(count)),
+    binwidth = bw,
+    fill = "lightblue",
+    color = "black",
+    alpha = 0.5
+  ) +
+  
+  # Density curve scaled to counts
+  geom_density(
+    aes(y = after_stat(density * nrow(df) * bw)),
+    color = "blue",
+    linewidth = 1.2
+  ) +
+  
+  # TPoD lines
+  geom_vline(
+    data = tpod_df,
+    aes(
+      xintercept = value,
+      color = label
+    ),
+    linetype = "dashed",
+    linewidth = 1
+  ) +
+  
+  # TPoD labels
+  geom_text(
+    data = tpod_df,
+    aes(
+      x = value + 0.03,
+      y = Inf,
+      label = round(value, 3),
+      color = label
+    ),
+    angle = 90,
+    vjust = 1.2,
+    show.legend = FALSE
+  ) +
+  
+  labs(
+    x = "log10(Best.BMD)",
+    y = "Count",
+    color = "TPoD Methods",
+    title = "Distribution of Best BMD Values for TDR BPC",
+    subtitle = paste0(
+      "DRG = ", round(updated_TDR_drg_mean_BPC, 3),
+      " | Top Dose = ", high_dose_BPC_TDR,
+      " | Low Dose = ", low_dose_BPC_TDR
+    )
+  ) +
+  
+  theme_classic() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    legend.position = "right"
+  )
 
